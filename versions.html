@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>双截棍大冒险版本列表</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #fff8e8;
+      --muted: #aeb8d0;
+      --line: rgba(255, 255, 255, 0.14);
+      --gold: #ffd166;
+      --cyan: #4de3ff;
+      --rose: #ff5d8f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background:
+        radial-gradient(circle at 16% 14%, rgba(255, 93, 143, 0.2), transparent 28%),
+        radial-gradient(circle at 82% 18%, rgba(77, 227, 255, 0.18), transparent 30%),
+        linear-gradient(140deg, #070812 0%, #101827 54%, #080a10 100%);
+      color: var(--ink);
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+    }
+
+    main {
+      width: min(880px, 100%);
+      display: grid;
+      gap: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(38px, 7vw, 72px);
+      line-height: 1;
+      letter-spacing: 0;
+      text-shadow: 0 4px 0 #16131f, 0 0 24px rgba(77, 227, 255, 0.34);
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .versions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      min-height: 176px;
+      display: grid;
+      align-content: space-between;
+      gap: 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(16, 20, 34, 0.86);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .card strong {
+      display: block;
+      font-size: 24px;
+    }
+
+    .card span {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .badge {
+      width: fit-content;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--cyan), var(--gold), var(--rose));
+      color: #11131d;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .home {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 18px;
+      }
+
+      .versions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div>
+      <h1>双截棍大冒险</h1>
+      <p>这里保留多个可体验版本。根目录始终指向最新版本，下面的目录链接会固定到对应版本。</p>
+    </div>
+
+    <section class="versions" aria-label="版本列表">
+      <a class="card" href="v1/">
+        <div>
+          <strong>V1 初版</strong>
+          <span>原始横版平台版本，基础跳跃、攻击、收集音符和终点舞台。</span>
+        </div>
+        <i class="badge">/v1/</i>
+      </a>
+
+      <a class="card" href="v2.1/">
+        <div>
+          <strong>V2.1 霓虹巡演版</strong>
+          <span>霓虹视觉、黑胶道具、冲刺系统、检查点、进度条和更完整的操作手感。</span>
+        </div>
+        <i class="badge">/v2.1/</i>
+      </a>
+    </section>
+
+    <a class="home" href="./">进入最新版</a>
+  </main>
+</body>
+</html>
