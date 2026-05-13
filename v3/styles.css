@@ -326,7 +326,7 @@ button:active {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
   align-items: center;
   gap: 18px;
   margin: 0;

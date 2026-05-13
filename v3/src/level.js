@@ -1,4 +1,4 @@
-import { STAGE_PACK } from "./stages/index.js?v=3.9";
+import { STAGE_PACK } from "./stages/index.js?v=3.10";
 
 const groundY = 492;
 

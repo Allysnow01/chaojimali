@@ -1,10 +1,10 @@
-import { createAudio } from "./audio.js?v=3.9";
-import { createInput } from "./input.js?v=3.9";
-import { createTourLevel, STAGES } from "./level.js?v=3.9";
-import { makeState, updateGame } from "./entities.js?v=3.9";
-import { draw } from "./renderer.js?v=3.9";
-import { createRouteMap } from "./route-map.js?v=3.9";
-import { clamp } from "./utils.js?v=3.9";
+import { createAudio } from "./audio.js?v=3.10";
+import { createInput } from "./input.js?v=3.10";
+import { createTourLevel, STAGES } from "./level.js?v=3.10";
+import { makeState, updateGame } from "./entities.js?v=3.10";
+import { draw } from "./renderer.js?v=3.10";
+import { createRouteMap } from "./route-map.js?v=3.10";
+import { clamp } from "./utils.js?v=3.10";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
