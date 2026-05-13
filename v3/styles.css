@@ -375,6 +375,16 @@ button:active {
   opacity: 0.58;
 }
 
+.route-node.current,
+.route-node.cleared {
+  cursor: pointer;
+}
+
+.route-node:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 4px;
+}
+
 .route-gate {
   width: 58px;
   height: 76px;
@@ -458,8 +468,24 @@ button:active {
   animation: routeWalk 0.22s steps(2) infinite;
 }
 
-.route-start {
+.route-actions {
   justify-self: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.route-start,
+.route-reset {
+  justify-self: center;
+}
+
+.route-reset {
+  background: rgba(14, 19, 34, 0.86);
+  color: #fff8e8;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(85, 230, 255, 0.12), 0 12px 30px rgba(0, 0, 0, 0.34);
 }
 
 @keyframes routeWalk {

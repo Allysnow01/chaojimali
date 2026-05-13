@@ -1,10 +1,10 @@
-import { createAudio } from "./audio.js?v=3.11";
-import { createInput } from "./input.js?v=3.11";
-import { createTourLevel, STAGES } from "./level.js?v=3.11";
-import { makeState, updateGame } from "./entities.js?v=3.11";
-import { draw } from "./renderer.js?v=3.11";
-import { createRouteMap } from "./route-map.js?v=3.11";
-import { clamp } from "./utils.js?v=3.11";
+import { createAudio } from "./audio.js?v=3.12";
+import { createInput } from "./input.js?v=3.12";
+import { createTourLevel, STAGES } from "./level.js?v=3.12";
+import { makeState, updateGame } from "./entities.js?v=3.12";
+import { draw } from "./renderer.js?v=3.12";
+import { createRouteMap } from "./route-map.js?v=3.12";
+import { clamp } from "./utils.js?v=3.12";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -24,6 +24,8 @@ const deathText = document.getElementById("deathText");
 
 const input = createInput(document.querySelectorAll(".touch-btn"));
 const audio = createAudio();
+const progressKey = "nunchaku-v3-route-progress";
+let savedProgress = loadProgress();
 const routeMap = createRouteMap({
   root: document.getElementById("routeMap"),
   list: document.getElementById("routeStages"),
@@ -31,8 +33,11 @@ const routeMap = createRouteMap({
   title: document.getElementById("routeTitle"),
   hint: document.getElementById("routeHint"),
   action: document.getElementById("routeStartBtn"),
+  resetAction: document.getElementById("routeResetBtn"),
   stages: STAGES,
-  onEnter: beginStage
+  onEnter: beginStage,
+  onReset: resetProgress,
+  completedStage: savedProgress.completed
 });
 
 let stageIndex = 0;
@@ -55,7 +60,8 @@ function beginStage(index) {
 }
 
 function startGame() {
-  stageIndex = 0;
+  if (savedProgress.completed >= STAGES.length - 1) resetProgress();
+  stageIndex = Math.min(savedProgress.completed + 1, STAGES.length - 1);
   level = createTourLevel(stageIndex);
   state = makeState(level);
   running = false;
@@ -63,7 +69,7 @@ function startGame() {
   deathOverlay.classList.add("hidden");
   draw(ctx, state, level);
   syncHud();
-  routeMap.show(0, -1);
+  routeMap.show(stageIndex, savedProgress.completed);
 }
 
 function finish(title, body) {
@@ -72,6 +78,7 @@ function finish(title, body) {
   const finalClear = state.won && stageIndex >= STAGES.length - 1;
   if (state.won && !finalClear) {
     const cleared = stageIndex;
+    saveProgress(cleared);
     stageIndex += 1;
     level = createTourLevel(stageIndex);
     state = makeState(level);
@@ -81,6 +88,7 @@ function finish(title, body) {
     window.setTimeout(() => routeMap.show(stageIndex, cleared), 850);
     return;
   }
+  if (state.won && finalClear) saveProgress(stageIndex);
   overlay.querySelector(".mark").textContent = state.won ? (finalClear ? "ALL CLEAR V3" : "STAGE CLEAR") : "V3 WORLD TOUR";
   overlay.querySelector("h1").textContent = title;
   overlay.querySelector("p").textContent = body;
@@ -135,4 +143,24 @@ window.addEventListener("keydown", (event) => {
 
 draw(ctx, state, level);
 syncHud();
-routeMap.show(0, -1);
+routeMap.show(Math.min(savedProgress.completed + 1, STAGES.length - 1), savedProgress.completed);
+
+function loadProgress() {
+  try {
+    const raw = window.localStorage.getItem(progressKey);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return { completed: clamp(Number(parsed.completed ?? -1), -1, STAGES.length - 1) };
+  } catch {
+    return { completed: -1 };
+  }
+}
+
+function saveProgress(completed) {
+  savedProgress = { completed: Math.max(savedProgress.completed, completed) };
+  window.localStorage.setItem(progressKey, JSON.stringify(savedProgress));
+}
+
+function resetProgress() {
+  savedProgress = { completed: -1 };
+  window.localStorage.removeItem(progressKey);
+}

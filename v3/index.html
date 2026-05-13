@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>双截棍大冒险 V3</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="styles.css?v=3.11">
+  <link rel="stylesheet" href="styles.css?v=3.12">
 </head>
 <body>
   <main class="game-shell">
@@ -56,7 +56,10 @@
         <div id="routeRunner" class="route-runner" aria-hidden="true">
           <i></i><b></b><em></em>
         </div>
-        <button id="routeStartBtn" class="route-start" type="button">进入第一关 稻香田街</button>
+        <div class="route-actions">
+          <button id="routeStartBtn" class="route-start" type="button">进入第一关 稻香田街</button>
+          <button id="routeResetBtn" class="route-reset" type="button" hidden>重置巡演</button>
+        </div>
       </div>
     </section>
 
@@ -70,6 +73,6 @@
       </div>
     </aside>
   </main>
-  <script type="module" src="src/main.js?v=3.11"></script>
+  <script type="module" src="src/main.js?v=3.12"></script>
 </body>
 </html>

@@ -1,10 +1,10 @@
-export function createRouteMap({ root, list, runner, title, hint, action, stages, onEnter }) {
+export function createRouteMap({ root, list, runner, title, hint, action, resetAction, stages, onEnter, onReset, completedStage = -1 }) {
   let current = 0;
-  let completed = -1;
+  let completed = completedStage;
   let entering = false;
 
   function show(nextStage, clearedStage = completed) {
-    current = nextStage;
+    current = Math.min(Math.max(0, nextStage), stages.length - 1);
     completed = Math.max(completed, clearedStage);
     entering = false;
     root.classList.remove("hidden", "entering");
@@ -20,14 +20,15 @@ export function createRouteMap({ root, list, runner, title, hint, action, stages
   function render() {
     const next = stages[current];
     title.textContent = "巡演路线图";
-    hint.textContent = next ? `下一站：${next.title}。` : "世界巡演已经完成。";
+    hint.textContent = next ? `下一站：${next.title}。已完成 ${Math.max(0, completed + 1)} / ${stages.length} 关。` : "世界巡演已经完成。";
     action.textContent = next ? `进入 ${next.title}` : "重新巡演";
     action.disabled = false;
+    resetAction.hidden = completed < 0;
     list.innerHTML = stages.map((stage, index) => {
       const status = index <= completed ? "cleared" : index === current ? "current" : "locked";
       const badge = status === "cleared" ? "CLEAR" : status === "current" ? "NEXT" : `${index + 1}`;
       return `
-        <li class="route-node ${status}" data-stage="${index}">
+        <li class="route-node ${status}" data-stage="${index}" tabindex="${index <= completed + 1 ? 0 : -1}" role="button" aria-label="${stage.title}">
           <i class="route-gate"></i>
           <span>${badge}</span>
           <strong>${stage.title}</strong>
@@ -54,6 +55,21 @@ export function createRouteMap({ root, list, runner, title, hint, action, stages
     }, 1320);
   }
 
+  function choose(stageIndex) {
+    if (stageIndex > completed + 1 || entering) return;
+    current = stageIndex;
+    render();
+    requestAnimationFrame(() => placeRunner(current));
+  }
+
+  function reset() {
+    completed = -1;
+    current = 0;
+    onReset();
+    render();
+    requestAnimationFrame(() => placeRunner(0));
+  }
+
   function placeRunner(stageIndex) {
     const routeBox = root.getBoundingClientRect();
     const gate = list.querySelector(`[data-stage="${stageIndex}"] .route-gate`);
@@ -65,5 +81,18 @@ export function createRouteMap({ root, list, runner, title, hint, action, stages
   }
 
   action.addEventListener("click", enter);
-  return { show, hide, enter };
+  resetAction.addEventListener("click", reset);
+  list.addEventListener("click", (event) => {
+    const node = event.target.closest(".route-node");
+    if (node) choose(Number(node.dataset.stage));
+  });
+  list.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const node = event.target.closest(".route-node");
+    if (!node) return;
+    event.preventDefault();
+    choose(Number(node.dataset.stage));
+  });
+
+  return { show, hide, enter, choose };
 }

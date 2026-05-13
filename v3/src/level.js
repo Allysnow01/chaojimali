@@ -1,4 +1,4 @@
-import { STAGE_PACK } from "./stages/index.js?v=3.11";
+import { STAGE_PACK } from "./stages/index.js?v=3.12";
 
 const groundY = 492;
 const lengthMultiplier = 2;
