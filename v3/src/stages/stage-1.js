@@ -10,6 +10,12 @@ export const stage = {
     { name: "稻香街口", start: 0, end: 2600, tint: "#17264a", mission: "收集音符、熟悉跳跃和二段棍。", music: "pastoral" },
     { name: "田边小舞台", start: 2600, end: 5600, tint: "#1e2c4e", mission: "用弹簧和短滑翔越过田埂缺口。", music: "pastoral" }
   ],
+  sections: [
+    { name: "热身田埂", start: 0, end: 900, mechanic: "基础跳跃", goal: "让玩家稳定完成第一次平台上行" },
+    { name: "黑胶街角", start: 900, end: 1960, mechanic: "收集路线", goal: "用高低两条音符线介绍奖励路线" },
+    { name: "弹簧田边", start: 1960, end: 4050, mechanic: "弹簧滑翔", goal: "建立弹簧接滑翔的节奏" },
+    { name: "小舞台终点", start: 4050, end: 5600, mechanic: "轻战斗", goal: "用低压敌人完成第一关收束" }
+  ],
   ground: [
     [0, 900, "street"], [1030, 780, "vinyl"], [1960, 860, "street"],
     [3040, 760, "street"], [4050, 1280, "stage"]
@@ -41,6 +47,13 @@ export const stage = {
   enemies: [
     [545, 454, 505, 850, "camera"], [1180, 454, 1060, 1760, "fan"],
     [2300, 454, 2050, 2780, "speaker"], [4350, 454, 4100, 5200, "dancer"]
+  ],
+  signs: [
+    { x: 260, y: 430, label: "JUMP", text: "跳上招牌收音符", color: "#55e6ff" },
+    { x: 1080, y: 430, label: "J", text: "双截棍可打退敌人", color: "#ff5d8f" },
+    { x: 2840, y: 430, label: "SPRING", text: "弹簧后长按跳跃滑翔", color: "#8cffc1" },
+    { x: 3710, y: 430, label: "FEVER", text: "收集星星积攒 Fever", color: "#ffd166" },
+    { x: 4740, y: 430, label: "GOAL", text: "终点前保留冲刺", color: "#ffd166" }
   ],
   checkpoints: [2470, 4200],
   decorationTheme: "street"

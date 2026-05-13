@@ -18,6 +18,7 @@ for (let i = 0; i < STAGES.length; i += 1) {
     stage: level.stage.title,
     width: level.width,
     acts: level.acts.map((act) => act.name),
+    sections: level.sections.map((section) => section.name),
     counts: {
       platforms: level.platforms.length + level.moving.length,
       pickups: level.pickups.length,
@@ -30,6 +31,8 @@ for (let i = 0; i < STAGES.length; i += 1) {
       locks: level.locks.length,
       crumble: level.crumble.length,
       feverGates: level.feverGates.length,
+      currents: level.currents.length,
+      signs: level.signs.length,
       checkpoints: level.checkpoints.length,
       decorations: level.decorations.length
     },

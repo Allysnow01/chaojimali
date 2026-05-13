@@ -1,5 +1,5 @@
-import { H, PHYSICS } from "./config.js?v=3.7";
-import { clamp, rects } from "./utils.js?v=3.7";
+import { H, PHYSICS } from "./config.js?v=3.8";
+import { clamp, rects } from "./utils.js?v=3.8";
 
 const PICKUP_SCORE = {
   note: 1,
@@ -76,6 +76,8 @@ export function makeState(level) {
     locks: level.locks.map((l) => ({ ...l, open: false })),
     crumble: level.crumble.map((c) => ({ ...c, active: true, timer: c.timer ?? 90, reset: 0 })),
     feverGates: level.feverGates.map((g) => ({ ...g })),
+    currents: level.currents.map((c) => ({ ...c })),
+    signs: level.signs.map((s) => ({ ...s, seen: false })),
     checkpoints: level.checkpoints.map((c) => ({ ...c, active: false }))
   };
 }
@@ -388,6 +390,18 @@ function handleSpecials(state, level, finish, audio) {
     if (!rects(p, gate) || state.feverActive > 0) continue;
     if (state.fever >= 100) popup(state, "PRESS L", gate.x - 12, gate.y - 18, "#ffd166");
     else if (Math.floor(state.pulse) % 30 === 0) popup(state, "NEED FEVER", gate.x - 20, gate.y - 18, "#ff5d8f");
+  }
+  for (const current of state.currents) {
+    if (!rects(p, current)) continue;
+    p.vx += (current.vx ?? 0) * 0.08;
+    p.vy += (current.vy ?? 0) * 0.08;
+    p.glide = Math.max(p.glide, 60);
+    if (Math.floor(state.pulse) % 8 === 0) burst(state, p.x + p.w / 2, p.y + p.h, current.color || "#55e6ff", 1, 1.4);
+  }
+  for (const sign of state.signs) {
+    if (sign.seen || Math.abs(p.x - sign.x) > 34 || Math.abs(p.y - sign.y) > 140) continue;
+    sign.seen = true;
+    popup(state, sign.text, sign.x - 20, sign.y - 40, sign.color || "#ffd166");
   }
   for (const s of level.springs) {
     if (rects(p, s) && p.vy >= 0) {

@@ -10,6 +10,12 @@ export const stage = {
     { name: "夜曲天台", start: 0, end: 3000, tint: "#121a38", mission: "屋顶会踩碎，落脚后立刻继续跑。", music: "nocturne" },
     { name: "广告牌阵列", start: 3000, end: 6400, tint: "#1d1735", mission: "脆弱广告牌、追光和节奏门连在一起。", music: "nocturne" }
   ],
+  sections: [
+    { name: "追光起跑", start: 0, end: 1740, mechanic: "移动平台", goal: "用低速横移平台建立屋顶节奏" },
+    { name: "坍塌广告牌", start: 1740, end: 3000, mechanic: "脆弱平台", goal: "第一次要求落脚后立刻离开" },
+    { name: "节奏门窄巷", start: 3000, end: 4300, mechanic: "节奏门", goal: "把等待窗口和坍塌平台连接" },
+    { name: "夜场冲刺", start: 4300, end: 6400, mechanic: "竖移平台+塌板", goal: "完成连续屋顶逃离" }
+  ],
   ground: [
     [0, 780, "roof"], [1000, 720, "roof"], [1960, 620, "roof"],
     [2940, 760, "roof"], [4180, 680, "roof"], [5180, 980, "stage"]
@@ -29,7 +35,8 @@ export const stage = {
     { x: 1820, y: 386, w: 170, h: 24, timer: 74, respawn: 260 },
     { x: 3810, y: 348, w: 160, h: 24, timer: 62, respawn: 280 },
     { x: 5050, y: 366, w: 180, h: 24, timer: 70, respawn: 260 },
-    { x: 5560, y: 286, w: 150, h: 24, timer: 58, respawn: 290 }
+    { x: 5560, y: 286, w: 150, h: 24, timer: 58, respawn: 290 },
+    { x: 5920, y: 392, w: 150, h: 24, timer: 54, respawn: 290 }
   ],
   hazards: [
     { x: 780, y: 526, w: 210, h: 18, type: "pit" },
@@ -51,7 +58,15 @@ export const stage = {
     [4300, 454, 4180, 4850, "drone"], [5450, 454, 5200, 6100, "fan"]
   ],
   beatGates: [
-    { x: 3890, y: 352, w: 34, h: 140, phase: 18, period: 92 }
+    { x: 3890, y: 352, w: 34, h: 140, phase: 18, period: 92 },
+    { x: 5150, y: 346, w: 34, h: 146, phase: 42, period: 88 }
+  ],
+  signs: [
+    { x: 1540, y: 430, label: "RUN", text: "屋顶会塌，不要停", color: "#ffd166" },
+    { x: 2580, y: 430, label: "GLIDE", text: "滑翔接住移动屋顶", color: "#b79cff" },
+    { x: 3740, y: 430, label: "BEAT", text: "看准节奏门开口", color: "#ff5d8f" },
+    { x: 5020, y: 430, label: "FAST", text: "广告牌只给一次落脚", color: "#55e6ff" },
+    { x: 5880, y: 430, label: "FINISH", text: "终点前连跳塌板", color: "#ffd166" }
   ],
   checkpoints: [2250, 4300],
   decorationTheme: "roof"

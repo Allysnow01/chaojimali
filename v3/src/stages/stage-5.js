@@ -10,6 +10,12 @@ export const stage = {
     { name: "双截棍工厂", start: 0, end: 3600, tint: "#281b2f", mission: "火箭轨道会强制推进，提前准备跳点。", music: "factory" },
     { name: "七里香终演", start: 3600, end: 7800, tint: "#321d27", mission: "释放 Fever 穿过终演门阵。", music: "finale" }
   ],
+  sections: [
+    { name: "工厂发车", start: 0, end: 1880, mechanic: "火箭轨道", goal: "用高速强制推进改变横版节奏" },
+    { name: "节奏锯齿", start: 1880, end: 3600, mechanic: "轨道+节奏门", goal: "要求玩家提前读门而不是停等" },
+    { name: "终演钥匙", start: 3600, end: 5820, mechanic: "钥匙门", goal: "在高压段中加入明确小目标" },
+    { name: "Fever 门阵", start: 5820, end: 7800, mechanic: "Fever 通行", goal: "让 Fever 从加分技能变成通关技能" }
+  ],
   ground: [
     [0, 900, "factory"], [1160, 700, "factory"], [2160, 740, "factory"],
     [3440, 720, "stage"], [4680, 760, "stage"], [5820, 1540, "stage"]
@@ -41,7 +47,8 @@ export const stage = {
   ],
   feverGates: [
     { x: 7160, y: 336, w: 42, h: 156 },
-    { x: 7400, y: 326, w: 42, h: 166 }
+    { x: 7400, y: 326, w: 42, h: 166 },
+    { x: 7500, y: 326, w: 42, h: 166 }
   ],
   crumble: [
     { x: 1900, y: 344, w: 150, h: 24, timer: 52, respawn: 300 },
@@ -75,6 +82,13 @@ export const stage = {
     { x: 2050, y: 336, w: 34, h: 156, phase: 18, period: 78 },
     { x: 4420, y: 332, w: 34, h: 160, phase: 48, period: 82 },
     { x: 6840, y: 332, w: 34, h: 160, phase: 12, period: 74 }
+  ],
+  signs: [
+    { x: 920, y: 430, label: "RAIL", text: "火箭轨道会强制推进", color: "#55e6ff" },
+    { x: 2040, y: 430, label: "BEAT", text: "节奏门接在轨道之后", color: "#ff5d8f" },
+    { x: 5300, y: 430, label: "KEY", text: "钥匙门后是终演段", color: "#ffd166" },
+    { x: 7140, y: 430, label: "FEVER", text: "按 L 穿过终演门阵", color: "#ffd166" },
+    { x: 7420, y: 430, label: "FINAL", text: "Fever 期间不要停", color: "#ff5d8f" }
   ],
   checkpoints: [2480, 4720, 6300],
   decorationTheme: "factory"

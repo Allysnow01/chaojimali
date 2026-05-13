@@ -1,5 +1,5 @@
-import { COLORS, H, W } from "./config.js?v=3.7";
-import { clamp } from "./utils.js?v=3.7";
+import { COLORS, H, W } from "./config.js?v=3.8";
+import { clamp } from "./utils.js?v=3.8";
 
 export function draw(ctx, state, level) {
   const ox = state.shake ? (Math.random() - 0.5) * state.shake : 0;
@@ -93,6 +93,7 @@ function drawLightBeams(ctx, state) {
 function drawWorld(ctx, state, level) {
   for (let x = -200; x < level.width + 300; x += 180) drawPoster(ctx, x, 430);
   for (const d of level.decorations) drawDecoration(ctx, d);
+  for (const current of state.currents) drawCurrent(ctx, current, state);
   for (const wind of level.winds) drawWind(ctx, wind, state);
   for (const rail of state.rails) drawRail(ctx, rail);
   for (const gate of level.beatGates) drawBeatGate(ctx, gate, state);
@@ -105,6 +106,7 @@ function drawWorld(ctx, state, level) {
   for (const l of state.locks) if (!l.open) drawLock(ctx, l);
   for (const g of state.feverGates) drawFeverGate(ctx, g, state);
   for (const m of state.moving) drawPlatform(ctx, m);
+  for (const sign of state.signs) drawSign(ctx, sign);
   for (const c of state.checkpoints) drawCheckpoint(ctx, c);
 }
 
@@ -258,6 +260,27 @@ function drawRail(ctx, rail) {
   ctx.restore();
 }
 
+function drawCurrent(ctx, current, state) {
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  ctx.globalAlpha = 0.2;
+  const color = current.color || COLORS.cyan;
+  glow(ctx, current.x + current.w / 2, current.y + current.h / 2, color, 30);
+  ctx.fillStyle = color;
+  ctx.fillRect(current.x, current.y, current.w, current.h);
+  ctx.globalAlpha = 0.65;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  for (let x = current.x + 18; x < current.x + current.w; x += 36) {
+    const y = current.y + 14 + ((state.pulse * 2 + x) % Math.max(20, current.h - 20));
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(x + 18, y - 16, x + 34, y);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function drawBooster(ctx, b, state) {
   const hot = b.cooldown <= 0;
   const color = hot ? COLORS.violet : "rgba(183,156,255,0.28)";
@@ -323,6 +346,24 @@ function drawFeverGate(ctx, g, state) {
     ctx.fillStyle = open ? "rgba(255,249,233,0.45)" : COLORS.gold;
     ctx.fillRect(g.x + 5, y, g.w - 10, 4);
   }
+  ctx.restore();
+}
+
+function drawSign(ctx, sign) {
+  ctx.save();
+  const color = sign.color || COLORS.gold;
+  ctx.fillStyle = "rgba(7,9,18,0.86)";
+  ctx.fillRect(sign.x - 18, sign.y - 54, 122, 42);
+  ctx.strokeStyle = color;
+  ctx.strokeRect(sign.x - 18, sign.y - 54, 122, 42);
+  ctx.fillStyle = color;
+  ctx.font = "bold 12px Arial";
+  ctx.fillText(sign.label || "TIP", sign.x - 7, sign.y - 30);
+  ctx.strokeStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(sign.x, sign.y - 12);
+  ctx.lineTo(sign.x, sign.y + 34);
+  ctx.stroke();
   ctx.restore();
 }
 

@@ -10,6 +10,12 @@ export const stage = {
     { name: "晴天云梯", start: 0, end: 3300, tint: "#1e3555", mission: "冲刺环会把你弹到下一段云轨。", music: "sunny" },
     { name: "云轨转场", start: 3300, end: 7000, tint: "#22435f", mission: "空中串联风场、冲刺环和竖移云台。", music: "sunny" }
   ],
+  sections: [
+    { name: "风场起跳", start: 0, end: 1880, mechanic: "上升气流", goal: "把滑翔从防守动作变成进攻路线" },
+    { name: "冲刺环教学", start: 1880, end: 3300, mechanic: "冲刺环", goal: "让玩家主动追逐空中圆环" },
+    { name: "云轨连锁", start: 3300, end: 5480, mechanic: "风+环+移动台", goal: "形成空中连续输入链" },
+    { name: "高空收束", start: 5480, end: 7000, mechanic: "无地面长跨越", goal: "用最后两个圆环完成终点冲刺" }
+  ],
   ground: [
     [0, 820, "cloud"], [1160, 620, "cloud"], [2300, 680, "cloud"],
     [3600, 620, "cloud"], [4740, 780, "cloud"], [5980, 760, "stage"]
@@ -40,7 +46,8 @@ export const stage = {
     { x: 2520, y: 282, w: 44, h: 44, vx: 0.95, vy: -0.62, power: 16 },
     { x: 3860, y: 288, w: 44, h: 44, vx: 0.88, vy: -0.8, power: 16 },
     { x: 4940, y: 278, w: 44, h: 44, vx: 0.95, vy: -0.55, power: 17 },
-    { x: 6160, y: 274, w: 44, h: 44, vx: 0.82, vy: -0.7, power: 16 }
+    { x: 6160, y: 274, w: 44, h: 44, vx: 0.82, vy: -0.7, power: 16 },
+    { x: 6620, y: 250, w: 44, h: 44, vx: 0.45, vy: -0.9, power: 14 }
   ],
   crumble: [
     { x: 1880, y: 350, w: 160, h: 24, timer: 58, respawn: 260 },
@@ -61,6 +68,13 @@ export const stage = {
   ],
   beatGates: [
     { x: 4320, y: 344, w: 34, h: 148, phase: 28, period: 86 }
+  ],
+  signs: [
+    { x: 850, y: 430, label: "WIND", text: "风场会托起滑翔", color: "#8cffc1" },
+    { x: 1440, y: 430, label: "RING", text: "冲刺环会补满速度", color: "#b79cff" },
+    { x: 3040, y: 430, label: "CHAIN", text: "把风场和冲刺环串起来", color: "#55e6ff" },
+    { x: 5480, y: 430, label: "AIR", text: "空中不要提前落地", color: "#ffd166" },
+    { x: 6500, y: 430, label: "SKY", text: "最后一环抬高进终点", color: "#b79cff" }
   ],
   checkpoints: [2380, 4760],
   decorationTheme: "cloud"
