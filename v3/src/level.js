@@ -1,8 +1,15 @@
-import { STAGE_PACK } from "./stages/index.js?v=3.10";
+import { STAGE_PACK } from "./stages/index.js?v=3.11";
 
 const groundY = 492;
+const lengthMultiplier = 2;
 
-export const STAGES = STAGE_PACK.map(({ id, title, subtitle, time, width }) => ({ id, title, subtitle, time, width }));
+export const STAGES = STAGE_PACK.map(({ id, title, subtitle, time, width }) => ({
+  id,
+  title,
+  subtitle,
+  time: time * lengthMultiplier,
+  width: width * lengthMultiplier
+}));
 
 export function createTourLevel(stageIndex = 0) {
   const spec = STAGE_PACK[stageIndex] || STAGE_PACK[0];
@@ -56,8 +63,70 @@ export function createTourLevel(stageIndex = 0) {
   addEnemies(level, spec.enemies || []);
   addDecorations(level, spec);
   addCheckpointSet(level, spec.checkpoints || []);
+  extendLevelToDouble(level, spec);
   validateLevel(level);
   return level;
+}
+
+function extendLevelToDouble(level, spec) {
+  const offset = spec.width;
+  const shifted = {
+    platforms: level.platforms.map((item) => shiftObject(item, offset)),
+    moving: level.moving.map((item) => shiftMoving(item, offset)),
+    hazards: level.hazards.map((item) => shiftObject(item, offset)),
+    winds: level.winds.map((item) => shiftObject(item, offset)),
+    beatGates: level.beatGates.map((item) => shiftObject(item, offset)),
+    enemies: level.enemies.map((item) => shiftEnemy(item, offset)),
+    decorations: level.decorations.map((item) => shiftObject(item, offset)),
+    springs: level.springs.map((item) => shiftObject(item, offset)),
+    portals: level.portals.map((item) => shiftPortal(item, offset)),
+    boosters: level.boosters.map((item) => shiftObject(item, offset)),
+    rails: level.rails.map((item) => shiftObject(item, offset)),
+    locks: level.locks.map((item) => shiftObject(item, offset)),
+    crumble: level.crumble.map((item) => shiftObject(item, offset)),
+    feverGates: level.feverGates.map((item) => shiftObject(item, offset)),
+    currents: level.currents.map((item) => shiftObject(item, offset)),
+    signs: level.signs.map((item) => ({ ...shiftObject(item, offset), text: `${item.text} · 返场` })),
+    pickups: level.pickups.map(([x, y, type]) => [x + offset, y, type]),
+    checkpoints: level.checkpoints.map((item) => ({
+      ...item,
+      x: item.x + offset,
+      respawn: { x: item.respawn.x + offset, y: item.respawn.y }
+    }))
+  };
+
+  for (const key of Object.keys(shifted)) level[key].push(...shifted[key]);
+  level.acts = level.acts.concat(level.acts.map((act) => ({
+    ...act,
+    name: `${act.name} · 返场`,
+    start: act.start + offset,
+    end: act.end + offset
+  })));
+  level.sections = level.sections.concat(level.sections.map((section) => ({
+    ...section,
+    name: `${section.name} · 返场`,
+    start: section.start + offset,
+    end: section.end + offset
+  })));
+  level.width = spec.width * lengthMultiplier;
+  level.goal = shiftObject(spec.goal, offset);
+  level.stage = { ...level.stage, width: level.width };
+}
+
+function shiftObject(item, offset) {
+  return { ...item, x: item.x + offset };
+}
+
+function shiftMoving(item, offset) {
+  return { ...item, x: item.x + offset, min: item.min + offset, max: item.max + offset };
+}
+
+function shiftEnemy(item, offset) {
+  return { ...item, x: item.x + offset, min: item.min + offset, max: item.max + offset };
+}
+
+function shiftPortal(item, offset) {
+  return { ...item, x: item.x + offset, to: { ...item.to, x: item.to.x + offset } };
 }
 
 function normalizeActs(spec) {

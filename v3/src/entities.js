@@ -1,5 +1,5 @@
-import { H, PHYSICS } from "./config.js?v=3.10";
-import { clamp, rects } from "./utils.js?v=3.10";
+import { H, PHYSICS } from "./config.js?v=3.11";
+import { clamp, rects } from "./utils.js?v=3.11";
 
 const PICKUP_SCORE = {
   note: 1,
@@ -214,8 +214,7 @@ function updatePlayer(state, level, input, dt, boost, finish, audio) {
 function solids(level, state, includeMoving = true) {
   const staticSolids = level.platforms
     .concat(state.crumble.filter((c) => c.active))
-    .concat(state.locks.filter((l) => !l.open))
-    .concat(state.feverGates.filter(() => state.feverActive <= 0));
+    .concat(state.locks.filter((l) => !l.open));
   return includeMoving ? staticSolids.concat(state.moving) : staticSolids;
 }
 
@@ -390,6 +389,7 @@ function handleSpecials(state, level, finish, audio) {
     if (!rects(p, gate) || state.feverActive > 0) continue;
     if (state.fever >= 100) popup(state, "PRESS L", gate.x - 12, gate.y - 18, "#ffd166");
     else if (Math.floor(state.pulse) % 30 === 0) popup(state, "NEED FEVER", gate.x - 20, gate.y - 18, "#ff5d8f");
+    if (state.fever < 100 && state.checkpointGrace <= 0) hurtPlayer(state, finish, false, audio);
   }
   for (const current of state.currents) {
     if (!rects(p, current)) continue;
