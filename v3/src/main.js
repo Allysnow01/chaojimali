@@ -1,9 +1,9 @@
-import { createAudio } from "./audio.js?v=3.1";
-import { createInput } from "./input.js?v=3.1";
-import { createTourLevel } from "./level.js?v=3.1";
-import { makeState, updateGame } from "./entities.js?v=3.1";
-import { draw } from "./renderer.js?v=3.1";
-import { clamp } from "./utils.js?v=3.1";
+import { createAudio } from "./audio.js?v=3.2";
+import { createInput } from "./input.js?v=3.2";
+import { createTourLevel } from "./level.js?v=3.2";
+import { makeState, updateGame } from "./entities.js?v=3.2";
+import { draw } from "./renderer.js?v=3.2";
+import { clamp } from "./utils.js?v=3.2";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -52,7 +52,7 @@ function loop(now) {
   const dt = Math.min(32, now - last) / 16.67;
   last = now;
   updateGame(state, level, input, dt, syncHud, finish, audio);
-  audio.tick(state.feverActive > 0);
+  audio.tick(state.actIndex, state.feverActive > 0, state.remix > 0);
   draw(ctx, state, level);
   input.clearPressed();
   requestAnimationFrame(loop);

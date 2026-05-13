@@ -1,5 +1,5 @@
-import { ACTS, COLORS, H, W } from "./config.js?v=3.1";
-import { clamp } from "./utils.js?v=3.1";
+import { ACTS, COLORS, H, W } from "./config.js?v=3.2";
+import { clamp } from "./utils.js?v=3.2";
 
 export function draw(ctx, state, level) {
   const ox = state.shake ? (Math.random() - 0.5) * state.shake : 0;
@@ -93,6 +93,8 @@ function drawLightBeams(ctx, state) {
 function drawWorld(ctx, state, level) {
   for (let x = -200; x < level.width + 300; x += 180) drawPoster(ctx, x, 430);
   for (const d of level.decorations) drawDecoration(ctx, d);
+  for (const wind of level.winds) drawWind(ctx, wind, state);
+  for (const gate of level.beatGates) drawBeatGate(ctx, gate, state);
   for (const h of level.hazards) drawHazard(ctx, h);
   for (const p of level.portals) drawPortal(ctx, p);
   for (const s of level.springs) drawSpring(ctx, s);
@@ -172,6 +174,7 @@ function drawPlatform(ctx, b) {
     neon: ["#1b2740", COLORS.cyan],
     roof: ["#20263c", COLORS.violet],
     porcelain: ["#183548", "#8ccfff"],
+    cloud: ["#233852", COLORS.mint],
     factory: ["#2a2432", "#ff8d5d"],
     stage: ["#46312a", COLORS.gold],
     moving: ["#1b2438", COLORS.mint]
@@ -192,6 +195,42 @@ function drawPlatform(ctx, b) {
       ctx.stroke();
     }
   }
+}
+
+function drawWind(ctx, wind, state) {
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  ctx.globalAlpha = 0.22;
+  const g = ctx.createLinearGradient(wind.x, wind.y + wind.h, wind.x, wind.y);
+  g.addColorStop(0, "rgba(140,255,193,0)");
+  g.addColorStop(0.5, "rgba(140,255,193,0.45)");
+  g.addColorStop(1, "rgba(85,230,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(wind.x, wind.y, wind.w, wind.h);
+  ctx.strokeStyle = COLORS.mint;
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 7; i += 1) {
+    const x = wind.x + 18 + i * 22;
+    const y = wind.y + wind.h - ((state.pulse * 4 + i * 37) % wind.h);
+    ctx.beginPath();
+    ctx.moveTo(x, y + 24);
+    ctx.quadraticCurveTo(x + 16, y + 8, x + 4, y - 18);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawBeatGate(ctx, gate, state) {
+  const closed = ((state.pulse + gate.phase) % gate.period) < gate.period * 0.56;
+  ctx.save();
+  glow(ctx, gate.x + gate.w / 2, gate.y + gate.h / 2, closed ? COLORS.rose : COLORS.mint, 36);
+  ctx.fillStyle = closed ? "rgba(255,93,143,0.82)" : "rgba(140,255,193,0.18)";
+  ctx.fillRect(gate.x, gate.y, gate.w, gate.h);
+  ctx.fillStyle = closed ? "#ffd166" : COLORS.mint;
+  for (let y = gate.y + 8; y < gate.y + gate.h - 6; y += 18) {
+    ctx.fillRect(gate.x + 6, y, gate.w - 12, 4);
+  }
+  ctx.restore();
 }
 
 function drawHazard(ctx, h) {

@@ -16,6 +16,8 @@ const counts = {
   pickups: level.pickups.length,
   enemies: level.enemies.length,
   hazards: level.hazards.length,
+  winds: level.winds.length,
+  beatGates: level.beatGates.length,
   checkpoints: level.checkpoints.length,
   decorations: level.decorations.length
 };

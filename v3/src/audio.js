@@ -6,8 +6,14 @@ export function createAudio() {
   let step = 0;
   let timer = 0;
 
-  const scale = [261.63, 293.66, 329.63, 392.0, 440.0, 493.88, 523.25, 659.25];
-  const bass = [130.81, 130.81, 196.0, 164.81, 146.83, 196.0, 220.0, 196.0];
+  const themes = [
+    { lead: [392, 440, 523, 493, 440, 392, 330, 392], bass: [196, 196, 165, 196], wave: "triangle" },
+    { lead: [330, 392, 494, 440, 392, 330, 294, 330], bass: [165, 147, 196, 165], wave: "sine" },
+    { lead: [392, 523, 587, 659, 587, 523, 440, 392], bass: [196, 220, 262, 220], wave: "triangle" },
+    { lead: [523, 587, 659, 784, 659, 587, 523, 440], bass: [262, 220, 196, 262], wave: "square" },
+    { lead: [196, 262, 294, 392, 294, 262, 196, 147], bass: [98, 131, 147, 98], wave: "sawtooth" },
+    { lead: [440, 523, 659, 784, 880, 784, 659, 523], bass: [220, 196, 262, 294], wave: "triangle" }
+  ];
 
   function ensure() {
     if (ctx) return;
@@ -26,15 +32,16 @@ export function createAudio() {
     started = true;
   }
 
-  function tick(feverActive) {
+  function tick(actIndex = 0, feverActive = false, remix = false) {
     if (!started || !ctx) return;
     timer += 1;
-    const rate = feverActive ? 10 : 15;
+    const rate = feverActive || remix ? 9 : 15;
     if (timer % rate !== 0) return;
     const now = ctx.currentTime;
-    const note = scale[(step * 2 + (step >> 2)) % scale.length] * (step % 7 === 0 ? 2 : 1);
-    tone(note, 0.08, "triangle", 0.035, now, musicGain);
-    if (step % 4 === 0) tone(bass[(step / 4) % bass.length | 0], 0.16, "sine", 0.055, now, musicGain);
+    const theme = themes[actIndex % themes.length];
+    const note = theme.lead[(step * 2 + (step >> 2)) % theme.lead.length] * (step % 7 === 0 ? 2 : 1);
+    tone(note, remix ? 0.06 : 0.09, theme.wave, feverActive ? 0.052 : 0.037, now, musicGain);
+    if (step % 4 === 0) tone(theme.bass[(step / 4) % theme.bass.length | 0], 0.17, "sine", 0.055, now, musicGain);
     if (step % 8 === 6) noise(0.035, 0.025, now, musicGain);
     step += 1;
   }

@@ -1,5 +1,5 @@
-import { H, PHYSICS } from "./config.js?v=3.1";
-import { clamp, rects } from "./utils.js?v=3.1";
+import { H, PHYSICS } from "./config.js?v=3.2";
+import { clamp, rects } from "./utils.js?v=3.2";
 
 const PICKUP_SCORE = {
   note: 1,
@@ -243,6 +243,18 @@ function handleSpecials(state, level, finish, audio) {
   for (const h of level.hazards) {
     if (state.checkpointGrace <= 0 && rects(p, h)) hurtPlayer(state, finish, h.type === "pit", audio);
   }
+  for (const wind of level.winds) {
+    if (rects(p, wind)) {
+      p.vy += wind.power;
+      p.glide = Math.max(p.glide, 90);
+      if (Math.floor(state.pulse) % 10 === 0) burst(state, p.x + p.w / 2, p.y + p.h, "#8cffc1", 1, 1.2);
+    }
+  }
+  for (const gate of level.beatGates) {
+    if (gateClosed(state, gate) && rects(p, gate) && state.checkpointGrace <= 0) {
+      hurtPlayer(state, finish, false, audio);
+    }
+  }
   for (const portal of level.portals) {
     if (state.portalCd <= 0 && rects(p, portal)) {
       p.x = portal.to.x;
@@ -254,6 +266,11 @@ function handleSpecials(state, level, finish, audio) {
       audio?.sfx("portal");
     }
   }
+}
+
+function gateClosed(state, gate) {
+  const t = (state.pulse + gate.phase) % gate.period;
+  return t < gate.period * 0.56;
 }
 
 function updateEnemies(state, input, dt, boost, finish, audio) {
