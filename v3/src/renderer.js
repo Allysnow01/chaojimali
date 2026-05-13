@@ -1,5 +1,5 @@
-import { ACTS, COLORS, H, W } from "./config.js?v=3.2";
-import { clamp } from "./utils.js?v=3.2";
+import { ACTS, COLORS, H, W } from "./config.js?v=3.3";
+import { clamp } from "./utils.js?v=3.3";
 
 export function draw(ctx, state, level) {
   const ox = state.shake ? (Math.random() - 0.5) * state.shake : 0;

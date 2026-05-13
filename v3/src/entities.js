@@ -1,5 +1,5 @@
-import { H, PHYSICS } from "./config.js?v=3.2";
-import { clamp, rects } from "./utils.js?v=3.2";
+import { H, PHYSICS } from "./config.js?v=3.3";
+import { clamp, rects } from "./utils.js?v=3.3";
 
 const PICKUP_SCORE = {
   note: 1,
@@ -16,7 +16,7 @@ export function makeState(level) {
     camera: 0,
     score: 0,
     lives: 5,
-    time: 300,
+    time: level.stage?.time || 300,
     combo: 1,
     comboTime: 0,
     fever: 20,
@@ -466,7 +466,8 @@ function winGame(state, finish) {
   state.won = true;
   const bonus = Math.ceil(Math.max(0, state.time) / 2) + state.combo * 12;
   state.score += bonus;
-  finish("世界巡演开场成功", `V3 通关！总音符 ${state.score}，终局奖励 ${bonus}。`);
+  const finalClear = level.stageIndex >= 4;
+  finish(finalClear ? "世界巡演全部完成" : "关卡完成", finalClear ? `最终总分 ${state.score}，终局奖励 ${bonus}。` : `${state.score} 分，通关奖励 ${bonus}。下一关会引入更强机制组合。`);
 }
 
 export function burst(state, x, y, color, count, speed) {

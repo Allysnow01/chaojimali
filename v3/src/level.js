@@ -1,11 +1,22 @@
-import { ACTS } from "./config.js?v=3.2";
+import { ACTS } from "./config.js?v=3.3";
 
 const groundY = 492;
 
-export function createTourLevel() {
+export const STAGES = [
+  { id: 1, title: "第一关 稻香巡演", subtitle: "基础巡演路线", time: 300, variant: 0 },
+  { id: 2, title: "第二关 夜城加演", subtitle: "更密集的屋顶和追光", time: 280, variant: 1 },
+  { id: 3, title: "第三关 水巷回声", subtitle: "传送门与水面路线强化", time: 270, variant: 2 },
+  { id: 4, title: "第四关 云轨疾走", subtitle: "风场、滑翔和节奏门组合", time: 260, variant: 3 },
+  { id: 5, title: "第五关 终演安可", subtitle: "全机制高压终局", time: 300, variant: 4 }
+];
+
+export function createTourLevel(stageIndex = 0) {
+  const stage = STAGES[stageIndex] || STAGES[0];
   const level = {
     width: 19400,
     start: { x: 74, y: 404 },
+    stageIndex,
+    stage,
     platforms: [],
     moving: [],
     hazards: [],
@@ -30,6 +41,7 @@ export function createTourLevel() {
   addActSix(level);
   addDecorations(level);
   addCheckpointSet(level);
+  tuneStage(level, stage.variant);
   validateCheckpoints(level);
   return level;
 }
@@ -237,5 +249,38 @@ function addEnemies(level, items) {
 function addArc(level, x, y, count, type) {
   for (let i = 0; i < count; i += 1) {
     level.pickups.push([x + i * 62, y - Math.sin((i / Math.max(1, count - 1)) * Math.PI) * 42, type]);
+  }
+}
+
+function tuneStage(level, variant) {
+  if (variant === 0) return;
+  level.time = level.stage.time;
+
+  const extraEnemies = [
+    [[2760, 454, 2380, 2820, "fan"], [6030, 454, 5720, 6160, "drone"]],
+    [[7420, 454, 7060, 7800, "light"], [9100, 454, 8800, 9240, "camera"]],
+    [[10180, 454, 9780, 10760, "drone"], [12060, 454, 11620, 12180, "fan"], [14980, 454, 14480, 15480, "laser"]],
+    [[520, 454, 420, 880, "fan"], [3320, 454, 3100, 3690, "light"], [7600, 454, 7200, 8200, "dancer"], [13200, 454, 12820, 13820, "laser"], [18840, 454, 18300, 19100, "drone"]]
+  ];
+  for (const pack of extraEnemies.slice(0, variant)) {
+    for (const [x, y, min, max, type] of pack) level.enemies.push({ x, y, min, max, type });
+  }
+
+  if (variant >= 1) {
+    level.moving.push({ x: 2650, y: 420, w: 140, h: 22, skin: "moving", axis: "y", min: 326, max: 440, speed: 1.25, phase: 0.35 });
+    level.pickups.push([2700, 286, "feather"], [2890, 448, "fever"]);
+  }
+  if (variant >= 2) {
+    level.portals.push({ x: 5200, y: 426, w: 40, h: 66, to: { x: 6420, y: 318 } });
+    level.hazards.push({ x: 5750, y: 520, w: 160, h: 20, type: "water" });
+    level.pickups.push([6460, 276, "cassette"], [8040, 286, "fever"]);
+  }
+  if (variant >= 3) {
+    level.winds.push({ x: 3600, y: 230, w: 150, h: 280, power: -0.9 }, { x: 15180, y: 250, w: 160, h: 260, power: -1 });
+    level.beatGates.push({ x: 5850, y: 346, w: 34, h: 146, phase: 10, period: 84 });
+  }
+  if (variant >= 4) {
+    level.beatGates.push({ x: 12200, y: 336, w: 34, h: 156, phase: 25, period: 76 }, { x: 15720, y: 336, w: 34, h: 156, phase: 55, period: 72 });
+    level.hazards.push({ x: 17080, y: 520, w: 190, h: 18, type: "laser" });
   }
 }

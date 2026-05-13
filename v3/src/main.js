@@ -1,9 +1,9 @@
-import { createAudio } from "./audio.js?v=3.2";
-import { createInput } from "./input.js?v=3.2";
-import { createTourLevel } from "./level.js?v=3.2";
-import { makeState, updateGame } from "./entities.js?v=3.2";
-import { draw } from "./renderer.js?v=3.2";
-import { clamp } from "./utils.js?v=3.2";
+import { createAudio } from "./audio.js?v=3.3";
+import { createInput } from "./input.js?v=3.3";
+import { createTourLevel, STAGES } from "./level.js?v=3.3";
+import { makeState, updateGame } from "./entities.js?v=3.3";
+import { draw } from "./renderer.js?v=3.3";
+import { clamp } from "./utils.js?v=3.3";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -19,16 +19,19 @@ const missionText = document.getElementById("missionText");
 const overlay = document.getElementById("overlay");
 const startBtn = document.getElementById("startBtn");
 
-const level = createTourLevel();
 const input = createInput(document.querySelectorAll(".touch-btn"));
 const audio = createAudio();
 
+let stageIndex = 0;
+let level = createTourLevel(stageIndex);
 let state = makeState(level);
 let running = false;
 let last = 0;
 
 function startGame() {
   audio.start();
+  stageIndex = 0;
+  level = createTourLevel(stageIndex);
   state = makeState(level);
   running = true;
   last = performance.now();
@@ -39,12 +42,24 @@ function startGame() {
 function finish(title, body) {
   running = false;
   audio.sfx(state.won ? "win" : "hurt");
-  overlay.querySelector(".mark").textContent = state.won ? "CLEAR V3" : "V3 WORLD TOUR";
+  const finalClear = state.won && stageIndex >= STAGES.length - 1;
+  overlay.querySelector(".mark").textContent = state.won ? (finalClear ? "ALL CLEAR V3" : "STAGE CLEAR") : "V3 WORLD TOUR";
   overlay.querySelector("h1").textContent = title;
   overlay.querySelector("p").textContent = body;
-  startBtn.textContent = "再开一场";
+  startBtn.textContent = state.won && !finalClear ? "下一关" : "再开一场";
   overlay.classList.remove("hidden");
   syncHud();
+}
+
+function nextStage() {
+  audio.start();
+  stageIndex += 1;
+  level = createTourLevel(stageIndex);
+  state = makeState(level);
+  running = true;
+  last = performance.now();
+  overlay.classList.add("hidden");
+  requestAnimationFrame(loop);
 }
 
 function loop(now) {
@@ -67,11 +82,14 @@ function syncHud() {
   dashMeter.style.width = `${state.player.dashEnergy}%`;
   feverMeter.style.width = `${state.fever}%`;
   progressMeter.style.width = `${clamp((state.player.x / (level.goal.x - 60)) * 100, 0, 100)}%`;
-  actName.textContent = act.name;
-  missionText.textContent = act.mission;
+  actName.textContent = `${level.stage.title} · ${act.name}`;
+  missionText.textContent = `${level.stage.subtitle} · ${act.mission}`;
 }
 
-startBtn.addEventListener("click", startGame);
+startBtn.addEventListener("click", () => {
+  if (state.won && stageIndex < STAGES.length - 1) nextStage();
+  else startGame();
+});
 window.addEventListener("keydown", (event) => {
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
   if (key === "r") startGame();
