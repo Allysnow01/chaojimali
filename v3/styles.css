@@ -136,7 +136,7 @@ button:active {
   top: 10px;
   z-index: 3;
   display: grid;
-  grid-template-columns: minmax(330px, 1.1fr) minmax(260px, 1fr) minmax(190px, 0.8fr);
+  grid-template-columns: minmax(320px, 0.95fr) minmax(250px, 0.9fr) minmax(220px, 0.8fr);
   gap: 8px;
   pointer-events: none;
 }
@@ -148,12 +148,16 @@ button:active {
 }
 
 .stat {
-  min-height: 48px;
-  padding: 7px 9px;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  background: rgba(9, 12, 24, 0.72);
+  min-height: 44px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(7, 9, 19, 0.66);
   backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12), 0 8px 24px rgba(0, 0, 0, 0.22);
 }
 
 .stat span,
@@ -166,17 +170,37 @@ button:active {
 .stat strong {
   display: block;
   margin-top: 1px;
-  font-size: 21px;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.score-stat span {
+  color: var(--gold);
+  font-size: 22px;
+}
+
+.lives-stat span {
+  color: var(--rose);
+  font-size: 18px;
+}
+
+.combo-stat strong {
+  color: var(--mint);
+}
+
+.time-stat strong {
+  color: #fff2c8;
 }
 
 .meters {
   display: grid;
-  gap: 6px;
+  gap: 7px;
   padding: 7px 9px;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  background: rgba(9, 12, 24, 0.72);
+  border: 0;
+  border-radius: 14px;
+  background: rgba(7, 9, 19, 0.66);
   backdrop-filter: blur(8px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12), 0 8px 24px rgba(0, 0, 0, 0.22);
 }
 
 .meters label {
@@ -185,7 +209,7 @@ button:active {
 }
 
 .meters i {
-  height: 9px;
+  height: 10px;
   overflow: hidden;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.1);
@@ -200,6 +224,18 @@ button:active {
   background: linear-gradient(90deg, var(--cyan), var(--gold), var(--rose));
 }
 
+.dash-meter b {
+  background: linear-gradient(90deg, #55e6ff, #8cffc1);
+}
+
+.fever-meter b {
+  background: linear-gradient(90deg, #ffd166, #ff5d8f);
+}
+
+.progress-meter b {
+  background: linear-gradient(90deg, #b79cff, #55e6ff, #ffd166);
+}
+
 .mission {
   display: grid;
   gap: 5px;
@@ -209,6 +245,36 @@ button:active {
   border-radius: 8px;
   background: rgba(18, 15, 18, 0.72);
   backdrop-filter: blur(8px);
+}
+
+.death-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  background: rgba(6, 8, 17, 0.46);
+  text-align: center;
+  pointer-events: none;
+}
+
+.death-overlay.hidden {
+  display: none;
+}
+
+.death-overlay strong {
+  color: var(--rose);
+  font-size: 64px;
+  line-height: 1;
+  text-shadow: 0 4px 0 #120812, 0 0 26px rgba(255, 93, 143, 0.48);
+}
+
+.death-overlay span {
+  color: #fff2c8;
+  font-size: 18px;
+  font-weight: 900;
 }
 
 .mission b {

@@ -1,5 +1,5 @@
-import { H, PHYSICS } from "./config.js?v=3.4";
-import { clamp, rects } from "./utils.js?v=3.4";
+import { H, PHYSICS } from "./config.js?v=3.5";
+import { clamp, rects } from "./utils.js?v=3.5";
 
 const PICKUP_SCORE = {
   note: 1,
@@ -27,6 +27,7 @@ export function makeState(level) {
     over: false,
     checkpoint: { ...level.start },
     checkpointGrace: 0,
+    respawnFreeze: 0,
     actIndex: 0,
     particles: [],
     popups: [],
@@ -74,6 +75,12 @@ export function makeState(level) {
 
 export function updateGame(state, level, input, dt, hud, finish, audio) {
   if (state.over || state.won) return;
+  if (state.respawnFreeze > 0) {
+    state.respawnFreeze = Math.max(0, state.respawnFreeze - dt);
+    state.shake = Math.max(0, state.shake - dt);
+    hud();
+    return;
+  }
   if (state.hitstop > 0) {
     state.hitstop -= dt;
     return;
@@ -123,7 +130,7 @@ export function updateGame(state, level, input, dt, hud, finish, audio) {
   updateParticles(state, dt);
 
   if (p.y > H + 140) hurtPlayer(state, finish, true, audio);
-  if (rects(p, level.goal)) winGame(state, finish);
+  if (rects(p, level.goal)) winGame(state, level, finish);
   hud();
 }
 
@@ -499,6 +506,7 @@ function hurtPlayer(state, finish, fell = false, audio) {
       glide: 180
     });
     state.checkpointGrace = 130;
+    state.respawnFreeze = 78;
     state.shake = 8;
     popup(state, "SAFE BOUNCE", p.x - 18, p.y - 16, "#8cffc1");
     burst(state, p.x + p.w / 2, p.y + 30, "#8cffc1", 28, 3.5);
@@ -533,11 +541,12 @@ function hurtPlayer(state, finish, fell = false, audio) {
     glide: 120
   });
   state.checkpointGrace = 110;
+  state.respawnFreeze = 82;
   state.time = Math.max(50, state.time);
   burst(state, p.x + p.w / 2, p.y + 30, "#ff5d8f", 22, 3);
 }
 
-function winGame(state, finish) {
+function winGame(state, level, finish) {
   if (state.won) return;
   state.won = true;
   const bonus = Math.ceil(Math.max(0, state.time) / 2) + state.combo * 12;

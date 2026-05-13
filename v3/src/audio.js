@@ -64,7 +64,8 @@ export function createAudio() {
       tone(1040, 0.12, "triangle", 0.08, now + 0.16);
     }
     if (name === "fever") {
-      for (let i = 0; i < 8; i += 1) tone(scale[i] * 2, 0.08, "square", 0.05, now + i * 0.045);
+      const fanfare = [392, 494, 587, 784, 988, 1175, 1319, 1568];
+      for (let i = 0; i < fanfare.length; i += 1) tone(fanfare[i], 0.08, "square", 0.05, now + i * 0.045);
     }
     if (name === "win") {
       [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.18, "triangle", 0.07, now + i * 0.12));

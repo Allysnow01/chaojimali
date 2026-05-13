@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>双截棍大冒险 V3</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="styles.css?v=3.4">
+  <link rel="stylesheet" href="styles.css?v=3.5">
 </head>
 <body>
   <main class="game-shell">
@@ -13,15 +13,15 @@
       <canvas id="game" width="960" height="540"></canvas>
       <div class="ingame-hud" aria-label="游戏状态">
         <div class="scoreboard">
-          <div class="stat"><span>音符</span><strong id="score">0</strong></div>
-          <div class="stat"><span>生命</span><strong id="lives">5</strong></div>
-          <div class="stat"><span>连击</span><strong id="combo">x1</strong></div>
-          <div class="stat"><span>时间</span><strong id="timer">300</strong></div>
+          <div class="stat score-stat"><span>♪</span><strong id="score">0</strong></div>
+          <div class="stat lives-stat"><span>♥</span><strong id="lives">5</strong></div>
+          <div class="stat combo-stat"><span>COMBO</span><strong id="combo">x1</strong></div>
+          <div class="stat time-stat"><span>TIME</span><strong id="timer">300</strong></div>
         </div>
         <div class="meters">
-          <label><span>冲刺</span><i><b id="dashMeter"></b></i></label>
-          <label><span>Fever</span><i><b id="feverMeter"></b></i></label>
-          <label><span>进度</span><i><b id="progressMeter"></b></i></label>
+          <label class="dash-meter"><span>K 冲刺</span><i><b id="dashMeter"></b></i></label>
+          <label class="fever-meter"><span>L Fever</span><i><b id="feverMeter"></b></i></label>
+          <label class="progress-meter"><span>STAGE</span><i><b id="progressMeter"></b></i></label>
         </div>
         <div class="mission">
           <b id="actName">稻香街区</b>
@@ -42,18 +42,22 @@
         <p>五大关卡，每关包含六个街区。通关后进入下一关，机制会逐步叠加，直到终演安可。</p>
         <button id="startBtn" type="button">开启世界巡演</button>
       </div>
+      <div id="deathOverlay" class="death-overlay hidden">
+        <strong>MISS</strong>
+        <span id="deathText">回到安全点</span>
+      </div>
     </section>
 
     <aside class="guide-panel" aria-label="操作说明">
       <div class="controls">
         <span>A/D 或 ←/→ 移动</span>
         <span>W/↑/Space 跳跃，空中长按可滑翔</span>
-        <span>J 双截棍，K/Shift 冲刺</span>
-        <span>L 释放 Fever，R 重开</span>
+        <span>J 双截棍，K/Shift 冲刺破敌穿空隙</span>
+        <span>L Fever：短时间加速、减速敌人、强化得分</span>
         <a class="version-link" href="../versions.html">版本列表</a>
       </div>
     </aside>
   </main>
-  <script type="module" src="src/main.js?v=3.4"></script>
+  <script type="module" src="src/main.js?v=3.5"></script>
 </body>
 </html>

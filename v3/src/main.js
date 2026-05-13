@@ -1,9 +1,9 @@
-import { createAudio } from "./audio.js?v=3.4";
-import { createInput } from "./input.js?v=3.4";
-import { createTourLevel, STAGES } from "./level.js?v=3.4";
-import { makeState, updateGame } from "./entities.js?v=3.4";
-import { draw } from "./renderer.js?v=3.4";
-import { clamp } from "./utils.js?v=3.4";
+import { createAudio } from "./audio.js?v=3.5";
+import { createInput } from "./input.js?v=3.5";
+import { createTourLevel, STAGES } from "./level.js?v=3.5";
+import { makeState, updateGame } from "./entities.js?v=3.5";
+import { draw } from "./renderer.js?v=3.5";
+import { clamp } from "./utils.js?v=3.5";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -18,6 +18,8 @@ const actName = document.getElementById("actName");
 const missionText = document.getElementById("missionText");
 const overlay = document.getElementById("overlay");
 const startBtn = document.getElementById("startBtn");
+const deathOverlay = document.getElementById("deathOverlay");
+const deathText = document.getElementById("deathText");
 
 const input = createInput(document.querySelectorAll(".touch-btn"));
 const audio = createAudio();
@@ -36,6 +38,7 @@ function startGame() {
   running = true;
   last = performance.now();
   overlay.classList.add("hidden");
+  deathOverlay.classList.add("hidden");
   requestAnimationFrame(loop);
 }
 
@@ -48,6 +51,7 @@ function finish(title, body) {
   overlay.querySelector("p").textContent = body;
   startBtn.textContent = state.won && !finalClear ? "下一关" : "再开一场";
   overlay.classList.remove("hidden");
+  deathOverlay.classList.add("hidden");
   syncHud();
 }
 
@@ -59,6 +63,7 @@ function nextStage() {
   running = true;
   last = performance.now();
   overlay.classList.add("hidden");
+  deathOverlay.classList.add("hidden");
   requestAnimationFrame(loop);
 }
 
@@ -67,6 +72,7 @@ function loop(now) {
   const dt = Math.min(32, now - last) / 16.67;
   last = now;
   updateGame(state, level, input, dt, syncHud, finish, audio);
+  syncDeathOverlay();
   audio.tick(state.actIndex, state.feverActive > 0, state.remix > 0);
   draw(ctx, state, level);
   input.clearPressed();
@@ -84,6 +90,15 @@ function syncHud() {
   progressMeter.style.width = `${clamp((state.player.x / (level.goal.x - 60)) * 100, 0, 100)}%`;
   actName.textContent = `${level.stage.title} · ${act.name}`;
   missionText.textContent = `${level.stage.subtitle} · ${act.mission}`;
+}
+
+function syncDeathOverlay() {
+  if (state.respawnFreeze > 0) {
+    deathOverlay.classList.remove("hidden");
+    deathText.textContent = `回到安全点 · ${Math.ceil(state.respawnFreeze / 60)}`;
+  } else {
+    deathOverlay.classList.add("hidden");
+  }
 }
 
 startBtn.addEventListener("click", () => {
