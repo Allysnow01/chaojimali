@@ -1,5 +1,5 @@
-import { H, PHYSICS } from "./config.js";
-import { clamp, rects } from "./utils.js";
+import { H, PHYSICS } from "./config.js?v=3.1";
+import { clamp, rects } from "./utils.js?v=3.1";
 
 const PICKUP_SCORE = {
   note: 1,
@@ -21,9 +21,12 @@ export function makeState(level) {
     comboTime: 0,
     fever: 20,
     feverActive: 0,
+    remix: 0,
+    safetyBounce: 1,
     won: false,
     over: false,
     checkpoint: { ...level.start },
+    checkpointGrace: 0,
     actIndex: 0,
     particles: [],
     popups: [],
@@ -79,9 +82,11 @@ export function updateGame(state, level, input, dt, hud, finish, audio) {
   state.time -= dt / 60;
   state.pulse += dt;
   state.portalCd = Math.max(0, state.portalCd - dt);
+  state.checkpointGrace = Math.max(0, state.checkpointGrace - dt);
   state.shake = Math.max(0, state.shake - dt);
   state.flash = Math.max(0, state.flash - dt);
   state.comboTime = Math.max(0, state.comboTime - dt);
+  state.remix = Math.max(0, state.remix - dt);
   if (state.comboTime <= 0) state.combo = 1;
   state.feverActive = Math.max(0, state.feverActive - dt);
   p.invincible = Math.max(0, p.invincible - dt);
@@ -216,7 +221,8 @@ function updateMovingPlatforms(state, dt) {
   for (const m of state.moving) {
     m.lastX = m.x;
     m.lastY = m.y;
-    const t = Math.sin((state.pulse + m.phase * 80) * 0.035 * m.speed);
+    const remixBoost = state.remix > 0 ? 1.32 : 1;
+    const t = Math.sin((state.pulse + m.phase * 80) * 0.035 * m.speed * remixBoost);
     if (m.axis === "x") m.x = m.min + ((t + 1) / 2) * (m.max - m.min);
     if (m.axis === "y") m.y = m.min + ((t + 1) / 2) * (m.max - m.min);
   }
@@ -235,7 +241,7 @@ function handleSpecials(state, level, finish, audio) {
     }
   }
   for (const h of level.hazards) {
-    if (rects(p, h)) hurtPlayer(state, finish, h.type === "pit", audio);
+    if (state.checkpointGrace <= 0 && rects(p, h)) hurtPlayer(state, finish, h.type === "pit", audio);
   }
   for (const portal of level.portals) {
     if (state.portalCd <= 0 && rects(p, portal)) {
@@ -333,6 +339,8 @@ function collectPickups(state, audio) {
     } else if (item.type === "cassette") {
       p.vy = Math.min(p.vy, -12);
       state.fever = Math.min(100, state.fever + 14);
+      state.remix = 520;
+      state.flash = 16;
       color = "#f8f3ff";
     } else if (item.type === "feather") {
       p.glide = 520;
@@ -364,11 +372,12 @@ function updateCheckpoints(state, level, audio) {
   for (const c of state.checkpoints) {
     if (!c.active && p.x > c.x) {
       c.active = true;
-      state.checkpoint = { x: c.x, y: 404 };
+      state.checkpoint = { ...c.respawn };
       state.flash = 18;
       state.fever = Math.min(100, state.fever + 12);
-      popup(state, "SAVE", c.x, 310, "#55e6ff");
-      burst(state, c.x, 420, "#55e6ff", 26, 3.2);
+      state.safetyBounce = 1;
+      popup(state, "SAVE", c.x, c.y - 154, "#55e6ff");
+      burst(state, c.x, c.y - 36, "#55e6ff", 26, 3.2);
       audio?.sfx("checkpoint");
     }
   }
@@ -385,6 +394,24 @@ function hurtPlayer(state, finish, fell = false, audio) {
   if (p.invincible > 0 || state.over || state.won) return;
   state.combo = 1;
   state.comboTime = 0;
+  if (fell && state.safetyBounce > 0) {
+    state.safetyBounce = 0;
+    Object.assign(p, {
+      x: state.checkpoint.x,
+      y: state.checkpoint.y,
+      vx: p.facing * 4,
+      vy: -12,
+      invincible: 130,
+      dashEnergy: Math.max(76, p.dashEnergy),
+      glide: 180
+    });
+    state.checkpointGrace = 130;
+    state.shake = 8;
+    popup(state, "SAFE BOUNCE", p.x - 18, p.y - 16, "#8cffc1");
+    burst(state, p.x + p.w / 2, p.y + 30, "#8cffc1", 28, 3.5);
+    audio?.sfx("spring");
+    return;
+  }
   if (p.shield > 0 && !fell) {
     p.shield = 0;
     p.invincible = 100;
@@ -412,6 +439,7 @@ function hurtPlayer(state, finish, fell = false, audio) {
     dashEnergy: Math.max(70, p.dashEnergy),
     glide: 120
   });
+  state.checkpointGrace = 110;
   state.time = Math.max(50, state.time);
   burst(state, p.x + p.w / 2, p.y + 30, "#ff5d8f", 22, 3);
 }

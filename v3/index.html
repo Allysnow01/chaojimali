@@ -5,12 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>双截棍大冒险 V3</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="styles.css?v=3.0">
+  <link rel="stylesheet" href="styles.css?v=3.1">
 </head>
 <body>
   <main class="game-shell">
     <section class="stage-wrap" aria-label="双截棍大冒险 V3 游戏区域">
       <canvas id="game" width="960" height="540"></canvas>
+      <div class="ingame-hud" aria-label="游戏状态">
+        <div class="scoreboard">
+          <div class="stat"><span>音符</span><strong id="score">0</strong></div>
+          <div class="stat"><span>生命</span><strong id="lives">5</strong></div>
+          <div class="stat"><span>连击</span><strong id="combo">x1</strong></div>
+          <div class="stat"><span>时间</span><strong id="timer">300</strong></div>
+        </div>
+        <div class="meters">
+          <label><span>冲刺</span><i><b id="dashMeter"></b></i></label>
+          <label><span>Fever</span><i><b id="feverMeter"></b></i></label>
+          <label><span>进度</span><i><b id="progressMeter"></b></i></label>
+        </div>
+        <div class="mission">
+          <b id="actName">稻香街区</b>
+          <span id="missionText">收集音符，穿过第一幕。</span>
+        </div>
+      </div>
       <div class="touch-pad" aria-label="触控操作">
         <button class="touch-btn move" type="button" data-key="ArrowLeft" aria-label="向左">←</button>
         <button class="touch-btn move" type="button" data-key="ArrowRight" aria-label="向右">→</button>
@@ -27,22 +44,7 @@
       </div>
     </section>
 
-    <aside class="hud" aria-label="游戏状态">
-      <div class="scoreboard">
-        <div class="stat"><span>音符</span><strong id="score">0</strong></div>
-        <div class="stat"><span>生命</span><strong id="lives">5</strong></div>
-        <div class="stat"><span>连击</span><strong id="combo">x1</strong></div>
-        <div class="stat"><span>时间</span><strong id="timer">300</strong></div>
-      </div>
-      <div class="meters">
-        <label><span>冲刺</span><i><b id="dashMeter"></b></i></label>
-        <label><span>Fever</span><i><b id="feverMeter"></b></i></label>
-        <label><span>进度</span><i><b id="progressMeter"></b></i></label>
-      </div>
-      <div class="mission">
-        <b id="actName">稻香街区</b>
-        <span id="missionText">收集音符，穿过第一幕。</span>
-      </div>
+    <aside class="guide-panel" aria-label="操作说明">
       <div class="controls">
         <span>A/D 或 ←/→ 移动</span>
         <span>W/↑/Space 跳跃，空中长按可滑翔</span>
@@ -52,6 +54,6 @@
       </div>
     </aside>
   </main>
-  <script type="module" src="src/main.js?v=3.0"></script>
+  <script type="module" src="src/main.js?v=3.1"></script>
 </body>
 </html>

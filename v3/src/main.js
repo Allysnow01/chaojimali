@@ -1,9 +1,9 @@
-import { createAudio } from "./audio.js";
-import { createInput } from "./input.js";
-import { createTourLevel } from "./level.js";
-import { makeState, updateGame } from "./entities.js";
-import { draw } from "./renderer.js";
-import { clamp } from "./utils.js";
+import { createAudio } from "./audio.js?v=3.1";
+import { createInput } from "./input.js?v=3.1";
+import { createTourLevel } from "./level.js?v=3.1";
+import { makeState, updateGame } from "./entities.js?v=3.1";
+import { draw } from "./renderer.js?v=3.1";
+import { clamp } from "./utils.js?v=3.1";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");

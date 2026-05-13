@@ -1,5 +1,5 @@
-import { ACTS, COLORS, H, W } from "./config.js";
-import { clamp } from "./utils.js";
+import { ACTS, COLORS, H, W } from "./config.js?v=3.1";
+import { clamp } from "./utils.js?v=3.1";
 
 export function draw(ctx, state, level) {
   const ox = state.shake ? (Math.random() - 0.5) * state.shake : 0;
@@ -92,12 +92,65 @@ function drawLightBeams(ctx, state) {
 
 function drawWorld(ctx, state, level) {
   for (let x = -200; x < level.width + 300; x += 180) drawPoster(ctx, x, 430);
+  for (const d of level.decorations) drawDecoration(ctx, d);
   for (const h of level.hazards) drawHazard(ctx, h);
   for (const p of level.portals) drawPortal(ctx, p);
   for (const s of level.springs) drawSpring(ctx, s);
   for (const b of level.platforms) drawPlatform(ctx, b);
   for (const m of state.moving) drawPlatform(ctx, m);
   for (const c of state.checkpoints) drawCheckpoint(ctx, c);
+}
+
+function drawDecoration(ctx, d) {
+  if (d.type === "sign") {
+    const color = d.theme === "stage" ? COLORS.gold : d.theme === "porcelain" ? "#8ccfff" : d.theme === "factory" ? "#ff8d5d" : COLORS.cyan;
+    ctx.fillStyle = "#121827";
+    ctx.fillRect(d.x, d.y, 72, 44);
+    ctx.fillStyle = color;
+    ctx.fillRect(d.x + 10, d.y + 10, 48, 5);
+    ctx.fillStyle = COLORS.gold;
+    ctx.fillRect(d.x + 10, d.y + 24, 32, 5);
+    glow(ctx, d.x + 36, d.y + 22, color, 18);
+  } else if (d.type === "koi") {
+    ctx.fillStyle = "rgba(140,207,255,0.18)";
+    ctx.fillRect(d.x - 30, d.y + 18, 110, 16);
+    ctx.fillStyle = COLORS.gold;
+    ctx.beginPath();
+    ctx.ellipse(d.x, d.y + 20, 16, 7, -0.25, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = COLORS.rose;
+    ctx.beginPath();
+    ctx.moveTo(d.x + 16, d.y + 20);
+    ctx.lineTo(d.x + 30, d.y + 12);
+    ctx.lineTo(d.x + 28, d.y + 27);
+    ctx.fill();
+  } else if (d.type === "gear") {
+    ctx.strokeStyle = "#ff8d5d";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(d.x, d.y + 25, 18, 0, Math.PI * 2);
+    ctx.stroke();
+    for (let i = 0; i < 8; i += 1) {
+      const a = i * Math.PI / 4;
+      ctx.fillStyle = "#ff8d5d";
+      ctx.fillRect(d.x + Math.cos(a) * 22 - 3, d.y + 25 + Math.sin(a) * 22 - 3, 6, 6);
+    }
+    ctx.lineWidth = 1;
+  } else if (d.type === "crowd") {
+    for (let i = 0; i < 9; i += 1) {
+      ctx.fillStyle = i % 2 ? COLORS.cyan : COLORS.rose;
+      ctx.fillRect(d.x + i * 10, d.y + (i % 3) * 5, 7, 22);
+    }
+  } else if (d.type === "antenna") {
+    ctx.strokeStyle = COLORS.violet;
+    ctx.beginPath();
+    ctx.moveTo(d.x, d.y + 60);
+    ctx.lineTo(d.x + 20, d.y);
+    ctx.lineTo(d.x + 42, d.y + 60);
+    ctx.moveTo(d.x + 10, d.y + 30);
+    ctx.lineTo(d.x + 34, d.y + 30);
+    ctx.stroke();
+  }
 }
 
 function drawPoster(ctx, x, y) {
@@ -182,14 +235,14 @@ function drawCheckpoint(ctx, c) {
   ctx.strokeStyle = c.active ? COLORS.gold : COLORS.cyan;
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.moveTo(c.x, 492);
-  ctx.lineTo(c.x, 356);
+  ctx.moveTo(c.x, c.y);
+  ctx.lineTo(c.x, c.y - 136);
   ctx.stroke();
   ctx.fillStyle = c.active ? COLORS.gold : COLORS.cyan;
-  ctx.fillRect(c.x + 4, 360, 70, 28);
+  ctx.fillRect(c.x + 4, c.y - 132, 70, 28);
   ctx.fillStyle = "#111936";
   ctx.font = "bold 13px Arial";
-  ctx.fillText("SAVE", c.x + 17, 379);
+  ctx.fillText("SAVE", c.x + 17, c.y - 113);
   ctx.lineWidth = 1;
 }
 
@@ -484,6 +537,16 @@ function drawOverlayFx(ctx, state) {
     ctx.fillStyle = state.feverActive > 0 ? COLORS.gold : COLORS.cyan;
     ctx.fillRect(0, 0, W, H);
     ctx.globalAlpha = 1;
+  }
+  if (state.remix > 0) {
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    ctx.globalAlpha = 0.16 + Math.sin(state.pulse * 0.14) * 0.04;
+    for (let x = -40; x < W + 80; x += 42) {
+      ctx.fillStyle = x % 84 === 0 ? COLORS.rose : COLORS.cyan;
+      ctx.fillRect(x + Math.sin(state.pulse * 0.06 + x) * 12, 0, 5, H);
+    }
+    ctx.restore();
   }
 }
 

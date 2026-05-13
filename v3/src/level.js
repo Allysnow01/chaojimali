@@ -1,4 +1,4 @@
-import { ACTS } from "./config.js";
+import { ACTS } from "./config.js?v=3.1";
 
 const groundY = 492;
 
@@ -11,6 +11,7 @@ export function createTourLevel() {
     hazards: [],
     pickups: [],
     enemies: [],
+    decorations: [],
     springs: [],
     portals: [],
     checkpoints: [],
@@ -24,7 +25,9 @@ export function createTourLevel() {
   addActThree(level);
   addActFour(level);
   addActFive(level);
+  addDecorations(level);
   addCheckpointSet(level);
+  validateCheckpoints(level);
   return level;
 }
 
@@ -142,7 +145,54 @@ function addActFive(level) {
 }
 
 function addCheckpointSet(level) {
-  for (const x of [2850, 6100, 9300, 12700, 14900]) level.checkpoints.push({ x });
+  for (const x of [2540, 5600, 8980, 12330, 15100]) {
+    const respawn = findSafeRespawn(level, x);
+    level.checkpoints.push({ x: respawn.x, y: respawn.y + 58, respawn });
+  }
+}
+
+function addDecorations(level) {
+  const bands = [
+    [0, 2900, "street"],
+    [2900, 6100, "roof"],
+    [6100, 9300, "porcelain"],
+    [9300, 12700, "factory"],
+    [12700, 16200, "stage"]
+  ];
+  for (const [start, end, theme] of bands) {
+    for (let x = start + 160; x < end; x += 340) {
+      level.decorations.push({ x, y: 430, theme, type: "sign" });
+      if (theme === "porcelain") level.decorations.push({ x: x + 130, y: 468, theme, type: "koi" });
+      if (theme === "factory") level.decorations.push({ x: x + 120, y: 412, theme, type: "gear" });
+      if (theme === "stage") level.decorations.push({ x: x + 115, y: 446, theme, type: "crowd" });
+      if (theme === "roof") level.decorations.push({ x: x + 120, y: 390, theme, type: "antenna" });
+    }
+  }
+}
+
+function findSafeRespawn(level, targetX) {
+  const candidates = level.platforms
+    .filter((p) => p.w >= 120 && p.y < 500)
+    .map((p) => {
+      const x = Math.max(p.x + 42, Math.min(targetX, p.x + p.w - 76));
+      const inside = targetX >= p.x + 42 && targetX <= p.x + p.w - 76;
+      const distance = inside ? 0 : Math.min(Math.abs(targetX - p.x), Math.abs(targetX - (p.x + p.w)));
+      const verticalPenalty = p.y < 360 ? 80 : 0;
+      return { x, y: p.y - 58, platform: p, score: distance + verticalPenalty };
+    })
+    .sort((a, b) => a.score - b.score);
+  if (!candidates.length) throw new Error(`No safe respawn candidate near ${targetX}`);
+  return { x: candidates[0].x, y: candidates[0].y };
+}
+
+function validateCheckpoints(level) {
+  const unsafe = level.checkpoints.filter((c) => {
+    const box = { x: c.respawn.x, y: c.respawn.y + 58, w: 34, h: 2 };
+    return !level.platforms.some((p) => box.x + 17 >= p.x && box.x + 17 <= p.x + p.w && Math.abs(box.y - p.y) < 1);
+  });
+  if (unsafe.length) {
+    throw new Error(`Unsafe checkpoints: ${unsafe.map((c) => Math.round(c.x)).join(", ")}`);
+  }
 }
 
 function addPlatforms(level, items) {
