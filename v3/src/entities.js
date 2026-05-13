@@ -1,5 +1,5 @@
-import { H, PHYSICS } from "./config.js?v=3.3";
-import { clamp, rects } from "./utils.js?v=3.3";
+import { H, PHYSICS } from "./config.js?v=3.4";
+import { clamp, rects } from "./utils.js?v=3.4";
 
 const PICKUP_SCORE = {
   note: 1,
@@ -38,6 +38,8 @@ export function makeState(level) {
     player: {
       x: level.start.x,
       y: level.start.y,
+      prevX: level.start.x,
+      prevY: level.start.y,
       w: 34,
       h: 58,
       vx: 0,
@@ -65,7 +67,7 @@ export function makeState(level) {
       stun: 0,
       shoot: 30 + i * 9
     })),
-    moving: level.moving.map((m) => ({ ...m, baseX: m.x, baseY: m.y, lastX: m.x, lastY: m.y })),
+    moving: level.moving.map((m) => ({ ...m, baseX: m.x, baseY: m.y, lastX: m.x, lastY: m.y, wave0: Math.sin(m.phase * 80 * 0.035 * m.speed) })),
     checkpoints: level.checkpoints.map((c) => ({ ...c, active: false }))
   };
 }
@@ -127,6 +129,8 @@ export function updateGame(state, level, input, dt, hud, finish, audio) {
 
 function updatePlayer(state, level, input, dt, boost, finish, audio) {
   const p = state.player;
+  p.prevX = p.x;
+  p.prevY = p.y;
   const left = input.down("ArrowLeft", "a");
   const right = input.down("ArrowRight", "d");
   const accel = (p.onGround ? PHYSICS.groundAccel : PHYSICS.airAccel) * boost;
@@ -180,20 +184,21 @@ function updatePlayer(state, level, input, dt, boost, finish, audio) {
   }
 
   p.x += p.vx * dt;
-  collideX(state, level, p);
+  collideX(state, level, p, false);
   p.y += p.vy * dt;
   collideY(state, level, p);
+  carryOnMovingPlatforms(state, level, p);
   p.x = clamp(p.x, 0, level.width - p.w);
   handleSpecials(state, level, finish, audio);
   state.camera = clamp(p.x - 960 * 0.36, 0, level.width - 960);
 }
 
-function solids(level, state) {
-  return level.platforms.concat(state.moving);
+function solids(level, state, includeMoving = true) {
+  return includeMoving ? level.platforms.concat(state.moving) : level.platforms;
 }
 
-function collideX(state, level, p) {
-  for (const b of solids(level, state)) {
+function collideX(state, level, p, includeMoving = true) {
+  for (const b of solids(level, state, includeMoving)) {
     if (!rects(p, b)) continue;
     if (p.vx > 0) p.x = b.x - p.w;
     if (p.vx < 0) p.x = b.x + b.w;
@@ -203,17 +208,81 @@ function collideX(state, level, p) {
 
 function collideY(state, level, p) {
   p.onGround = false;
-  for (const b of solids(level, state)) {
+  for (const b of solids(level, state, false)) {
     if (!rects(p, b)) continue;
     if (p.vy > 0) {
       p.y = b.y - p.h;
       p.vy = 0;
       p.onGround = true;
-      if (b.baseX !== undefined) p.x += b.x - b.lastX;
     } else if (p.vy < 0) {
       p.y = b.y + b.h;
       p.vy = 0;
     }
+  }
+}
+
+function carryOnMovingPlatforms(state, level, p) {
+  const skin = 3;
+  for (const m of state.moving) {
+    const dx = m.x - m.lastX;
+    const dy = m.y - m.lastY;
+    const wasAbove = p.prevY + p.h <= m.lastY + skin;
+    const crossedTop = p.y + p.h >= m.y && p.prevY + p.h <= m.lastY + Math.max(skin, Math.abs(dy) + skin);
+    const overlapsXNow = p.x + p.w > m.x + 4 && p.x < m.x + m.w - 4;
+    const riding = wasAbove && crossedTop && overlapsXNow && p.vy >= -1;
+    if (riding) {
+      p.y = m.y - p.h;
+      p.vy = Math.min(0, p.vy);
+      p.onGround = true;
+      p.x += dx;
+      resolveMovingCarryX(state, level, p, dx);
+      if (dy < 0) resolveLiftCeiling(state, level, p);
+      continue;
+    }
+
+    if (!rects(p, m)) continue;
+    const fromLeft = p.prevX + p.w <= m.lastX + skin;
+    const fromRight = p.prevX >= m.lastX + m.w - skin;
+    const fromBelow = p.prevY >= m.lastY + m.h - skin;
+    if (fromLeft) {
+      p.x = m.x - p.w;
+      p.vx = Math.min(p.vx, dx);
+    } else if (fromRight) {
+      p.x = m.x + m.w;
+      p.vx = Math.max(p.vx, dx);
+    } else if (fromBelow) {
+      p.y = m.y + m.h;
+      p.vy = Math.max(0, p.vy);
+    } else {
+      const leftPen = p.x + p.w - m.x;
+      const rightPen = m.x + m.w - p.x;
+      if (leftPen < rightPen) p.x = m.x - p.w;
+      else p.x = m.x + m.w;
+      p.vx = dx;
+    }
+    resolveMovingCarryX(state, level, p, dx);
+  }
+}
+
+function resolveMovingCarryX(state, level, p, dx) {
+  for (const b of solids(level, state, false)) {
+    if (!rects(p, b)) continue;
+    if (dx > 0) p.x = b.x - p.w;
+    else if (dx < 0) p.x = b.x + b.w;
+    else {
+      const leftPen = p.x + p.w - b.x;
+      const rightPen = b.x + b.w - p.x;
+      p.x = leftPen < rightPen ? b.x - p.w : b.x + b.w;
+    }
+    p.vx = 0;
+  }
+}
+
+function resolveLiftCeiling(state, level, p) {
+  for (const b of solids(level, state, false)) {
+    if (!rects(p, b)) continue;
+    p.y = b.y + b.h;
+    p.vy = Math.max(0, p.vy);
   }
 }
 
@@ -223,8 +292,15 @@ function updateMovingPlatforms(state, dt) {
     m.lastY = m.y;
     const remixBoost = state.remix > 0 ? 1.32 : 1;
     const t = Math.sin((state.pulse + m.phase * 80) * 0.035 * m.speed * remixBoost);
-    if (m.axis === "x") m.x = m.min + ((t + 1) / 2) * (m.max - m.min);
-    if (m.axis === "y") m.y = m.min + ((t + 1) / 2) * (m.max - m.min);
+    const delta = t - m.wave0;
+    if (m.axis === "x") {
+      const amp = Math.min(m.baseX - m.min, m.max - m.baseX);
+      m.x = clamp(m.baseX + delta * amp, m.min, m.max);
+    }
+    if (m.axis === "y") {
+      const amp = Math.min(m.baseY - m.min, m.max - m.baseY);
+      m.y = clamp(m.baseY + delta * amp, m.min, m.max);
+    }
   }
 }
 
