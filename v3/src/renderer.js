@@ -1,5 +1,5 @@
-import { ACTS, COLORS, H, W } from "./config.js?v=3.5";
-import { clamp } from "./utils.js?v=3.5";
+import { COLORS, H, W } from "./config.js?v=3.6";
+import { clamp } from "./utils.js?v=3.6";
 
 export function draw(ctx, state, level) {
   const ox = state.shake ? (Math.random() - 0.5) * state.shake : 0;
@@ -7,7 +7,7 @@ export function draw(ctx, state, level) {
   ctx.save();
   ctx.translate(ox, oy);
   ctx.clearRect(-20, -20, W + 40, H + 40);
-  drawBackdrop(ctx, state);
+  drawBackdrop(ctx, state, level);
   ctx.save();
   ctx.translate(-state.camera, 0);
   drawWorld(ctx, state, level);
@@ -21,8 +21,8 @@ export function draw(ctx, state, level) {
   ctx.restore();
 }
 
-function drawBackdrop(ctx, state) {
-  const act = ACTS[state.actIndex] || ACTS[0];
+function drawBackdrop(ctx, state, level) {
+  const act = level.acts[state.actIndex] || level.acts[0];
   const g = ctx.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, act.tint);
   g.addColorStop(0.55, "#18223f");

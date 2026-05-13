@@ -1,5 +1,5 @@
-import { H, PHYSICS } from "./config.js?v=3.5";
-import { clamp, rects } from "./utils.js?v=3.5";
+import { H, PHYSICS } from "./config.js?v=3.6";
+import { clamp, rects } from "./utils.js?v=3.6";
 
 const PICKUP_SCORE = {
   note: 1,
@@ -551,7 +551,7 @@ function winGame(state, level, finish) {
   state.won = true;
   const bonus = Math.ceil(Math.max(0, state.time) / 2) + state.combo * 12;
   state.score += bonus;
-  const finalClear = level.stageIndex >= 4;
+  const finalClear = level.isFinal;
   finish(finalClear ? "世界巡演全部完成" : "关卡完成", finalClear ? `最终总分 ${state.score}，终局奖励 ${bonus}。` : `${state.score} 分，通关奖励 ${bonus}。下一关会引入更强机制组合。`);
 }
 

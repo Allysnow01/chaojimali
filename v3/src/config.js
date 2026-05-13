@@ -25,12 +25,3 @@ export const COLORS = {
   violet: "#b79cff",
   dark: "#070812"
 };
-
-export const ACTS = [
-  { name: "稻香田街", start: 0, end: 2900, tint: "#17264a", mission: "收集音符、建立连击，安全穿过田街。", music: "pastoral" },
-  { name: "夜曲屋顶", start: 2900, end: 6100, tint: "#121a38", mission: "用滑翔穿越屋顶间隙，躲开追光。", music: "nocturne" },
-  { name: "青花瓷水巷", start: 6100, end: 9300, tint: "#102d3a", mission: "借助弹簧、传送门和水面路线切换。", music: "porcelain" },
-  { name: "晴天云轨", start: 9300, end: 12200, tint: "#1e3555", mission: "利用上升气流与云轨平台保持高度。", music: "sunny" },
-  { name: "双截棍工厂", start: 12200, end: 15400, tint: "#281b2f", mission: "读节奏门、处理移动平台和密集敌人。", music: "factory" },
-  { name: "七里香终演", start: 15400, end: 19400, tint: "#321d27", mission: "攒满 Fever，穿过舞台灯阵完成终演。", music: "finale" }
-];
