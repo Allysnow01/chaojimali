@@ -1,9 +1,10 @@
-import { createAudio } from "./audio.js?v=3.8";
-import { createInput } from "./input.js?v=3.8";
-import { createTourLevel, STAGES } from "./level.js?v=3.8";
-import { makeState, updateGame } from "./entities.js?v=3.8";
-import { draw } from "./renderer.js?v=3.8";
-import { clamp } from "./utils.js?v=3.8";
+import { createAudio } from "./audio.js?v=3.9";
+import { createInput } from "./input.js?v=3.9";
+import { createTourLevel, STAGES } from "./level.js?v=3.9";
+import { makeState, updateGame } from "./entities.js?v=3.9";
+import { draw } from "./renderer.js?v=3.9";
+import { createRouteMap } from "./route-map.js?v=3.9";
+import { clamp } from "./utils.js?v=3.9";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -23,6 +24,16 @@ const deathText = document.getElementById("deathText");
 
 const input = createInput(document.querySelectorAll(".touch-btn"));
 const audio = createAudio();
+const routeMap = createRouteMap({
+  root: document.getElementById("routeMap"),
+  list: document.getElementById("routeStages"),
+  runner: document.getElementById("routeRunner"),
+  title: document.getElementById("routeTitle"),
+  hint: document.getElementById("routeHint"),
+  action: document.getElementById("routeStartBtn"),
+  stages: STAGES,
+  onEnter: beginStage
+});
 
 let stageIndex = 0;
 let level = createTourLevel(stageIndex);
@@ -30,41 +41,54 @@ let state = makeState(level);
 let running = false;
 let last = 0;
 
-function startGame() {
+function beginStage(index) {
   audio.start();
-  stageIndex = 0;
+  stageIndex = index;
   level = createTourLevel(stageIndex);
   state = makeState(level);
   running = true;
   last = performance.now();
   overlay.classList.add("hidden");
+  routeMap.hide();
   deathOverlay.classList.add("hidden");
   requestAnimationFrame(loop);
+}
+
+function startGame() {
+  stageIndex = 0;
+  level = createTourLevel(stageIndex);
+  state = makeState(level);
+  running = false;
+  overlay.classList.add("hidden");
+  deathOverlay.classList.add("hidden");
+  draw(ctx, state, level);
+  syncHud();
+  routeMap.show(0, -1);
 }
 
 function finish(title, body) {
   running = false;
   audio.sfx(state.won ? "win" : "hurt");
   const finalClear = state.won && stageIndex >= STAGES.length - 1;
+  if (state.won && !finalClear) {
+    const cleared = stageIndex;
+    stageIndex += 1;
+    level = createTourLevel(stageIndex);
+    state = makeState(level);
+    draw(ctx, state, level);
+    syncHud();
+    deathOverlay.classList.add("hidden");
+    window.setTimeout(() => routeMap.show(stageIndex, cleared), 850);
+    return;
+  }
   overlay.querySelector(".mark").textContent = state.won ? (finalClear ? "ALL CLEAR V3" : "STAGE CLEAR") : "V3 WORLD TOUR";
   overlay.querySelector("h1").textContent = title;
   overlay.querySelector("p").textContent = body;
   startBtn.textContent = state.won && !finalClear ? "下一关" : "再开一场";
   overlay.classList.remove("hidden");
+  routeMap.hide();
   deathOverlay.classList.add("hidden");
   syncHud();
-}
-
-function nextStage() {
-  audio.start();
-  stageIndex += 1;
-  level = createTourLevel(stageIndex);
-  state = makeState(level);
-  running = true;
-  last = performance.now();
-  overlay.classList.add("hidden");
-  deathOverlay.classList.add("hidden");
-  requestAnimationFrame(loop);
 }
 
 function loop(now) {
@@ -102,8 +126,7 @@ function syncDeathOverlay() {
 }
 
 startBtn.addEventListener("click", () => {
-  if (state.won && stageIndex < STAGES.length - 1) nextStage();
-  else startGame();
+  startGame();
 });
 window.addEventListener("keydown", (event) => {
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
@@ -112,3 +135,4 @@ window.addEventListener("keydown", (event) => {
 
 draw(ctx, state, level);
 syncHud();
+routeMap.show(0, -1);

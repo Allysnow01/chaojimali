@@ -1,5 +1,5 @@
-import { H, PHYSICS } from "./config.js?v=3.8";
-import { clamp, rects } from "./utils.js?v=3.8";
+import { H, PHYSICS } from "./config.js?v=3.9";
+import { clamp, rects } from "./utils.js?v=3.9";
 
 const PICKUP_SCORE = {
   note: 1,
