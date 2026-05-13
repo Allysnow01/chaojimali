@@ -7,8 +7,8 @@ export const stage = {
   start: { x: 74, y: 404 },
   goal: { x: 6740, y: 248, w: 118, h: 244 },
   acts: [
-    { name: "晴天云梯", start: 0, end: 3300, tint: "#1e3555", mission: "借助上升气流延长滑翔。", music: "sunny" },
-    { name: "云轨转场", start: 3300, end: 7000, tint: "#22435f", mission: "连续接住竖移云台，保持高度。", music: "sunny" }
+    { name: "晴天云梯", start: 0, end: 3300, tint: "#1e3555", mission: "冲刺环会把你弹到下一段云轨。", music: "sunny" },
+    { name: "云轨转场", start: 3300, end: 7000, tint: "#22435f", mission: "空中串联风场、冲刺环和竖移云台。", music: "sunny" }
   ],
   ground: [
     [0, 820, "cloud"], [1160, 620, "cloud"], [2300, 680, "cloud"],
@@ -35,9 +35,20 @@ export const stage = {
     { x: 3060, y: 220, w: 170, h: 300, power: -1.2 },
     { x: 5480, y: 225, w: 170, h: 290, power: -1.05 }
   ],
+  boosters: [
+    { x: 1460, y: 280, w: 44, h: 44, vx: 0.82, vy: -0.72, power: 16 },
+    { x: 2520, y: 282, w: 44, h: 44, vx: 0.95, vy: -0.62, power: 16 },
+    { x: 3860, y: 288, w: 44, h: 44, vx: 0.88, vy: -0.8, power: 16 },
+    { x: 4940, y: 278, w: 44, h: 44, vx: 0.95, vy: -0.55, power: 17 },
+    { x: 6160, y: 274, w: 44, h: 44, vx: 0.82, vy: -0.7, power: 16 }
+  ],
+  crumble: [
+    { x: 1880, y: 350, w: 160, h: 24, timer: 58, respawn: 260 },
+    { x: 4380, y: 334, w: 160, h: 24, timer: 58, respawn: 260 }
+  ],
   pickups: [
     [670, 278, "feather"], [1640, 250, "vinyl"], [2780, 250, "fever"],
-    [4020, 258, "cassette"], [5140, 254, "feather"], [6320, 268, "milk"]
+    [4020, 258, "cassette"], [5140, 254, "feather"], [6320, 268, "milk"], [6520, 292, "fever"]
   ],
   arcs: [
     [260, 348, 5, "note"], [1130, 326, 6, "note"], [2180, 340, 5, "note"],

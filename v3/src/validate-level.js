@@ -25,6 +25,11 @@ for (let i = 0; i < STAGES.length; i += 1) {
       hazards: level.hazards.length,
       winds: level.winds.length,
       beatGates: level.beatGates.length,
+      boosters: level.boosters.length,
+      rails: level.rails.length,
+      locks: level.locks.length,
+      crumble: level.crumble.length,
+      feverGates: level.feverGates.length,
       checkpoints: level.checkpoints.length,
       decorations: level.decorations.length
     },

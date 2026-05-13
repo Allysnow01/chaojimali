@@ -1,5 +1,5 @@
-import { COLORS, H, W } from "./config.js?v=3.6";
-import { clamp } from "./utils.js?v=3.6";
+import { COLORS, H, W } from "./config.js?v=3.7";
+import { clamp } from "./utils.js?v=3.7";
 
 export function draw(ctx, state, level) {
   const ox = state.shake ? (Math.random() - 0.5) * state.shake : 0;
@@ -94,11 +94,16 @@ function drawWorld(ctx, state, level) {
   for (let x = -200; x < level.width + 300; x += 180) drawPoster(ctx, x, 430);
   for (const d of level.decorations) drawDecoration(ctx, d);
   for (const wind of level.winds) drawWind(ctx, wind, state);
+  for (const rail of state.rails) drawRail(ctx, rail);
   for (const gate of level.beatGates) drawBeatGate(ctx, gate, state);
   for (const h of level.hazards) drawHazard(ctx, h);
+  for (const booster of state.boosters) drawBooster(ctx, booster, state);
   for (const p of level.portals) drawPortal(ctx, p);
   for (const s of level.springs) drawSpring(ctx, s);
+  for (const c of state.crumble) if (c.active) drawCrumble(ctx, c);
   for (const b of level.platforms) drawPlatform(ctx, b);
+  for (const l of state.locks) if (!l.open) drawLock(ctx, l);
+  for (const g of state.feverGates) drawFeverGate(ctx, g, state);
   for (const m of state.moving) drawPlatform(ctx, m);
   for (const c of state.checkpoints) drawCheckpoint(ctx, c);
 }
@@ -233,6 +238,94 @@ function drawBeatGate(ctx, gate, state) {
   ctx.restore();
 }
 
+function drawRail(ctx, rail) {
+  ctx.save();
+  glow(ctx, rail.x + rail.w / 2, rail.y + rail.h / 2, COLORS.cyan, 34);
+  ctx.strokeStyle = COLORS.cyan;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(rail.x, rail.y + rail.h / 2);
+  ctx.lineTo(rail.x + rail.w, rail.y + rail.h / 2);
+  ctx.stroke();
+  ctx.strokeStyle = COLORS.gold;
+  ctx.lineWidth = 2;
+  for (let x = rail.x + 12; x < rail.x + rail.w; x += 34) {
+    ctx.beginPath();
+    ctx.moveTo(x, rail.y + 3);
+    ctx.lineTo(x + 14, rail.y + rail.h - 3);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawBooster(ctx, b, state) {
+  const hot = b.cooldown <= 0;
+  const color = hot ? COLORS.violet : "rgba(183,156,255,0.28)";
+  glow(ctx, b.x + b.w / 2, b.y + b.h / 2, color, hot ? 32 : 12);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(b.x + b.w / 2, b.y + b.h / 2, b.w / 2, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = hot ? COLORS.gold : "rgba(255,209,102,0.35)";
+  const pulse = Math.sin(state.pulse * 0.12) * 3;
+  ctx.beginPath();
+  ctx.moveTo(b.x + b.w / 2, b.y + 8 + pulse);
+  ctx.lineTo(b.x + b.w - 8, b.y + b.h / 2);
+  ctx.lineTo(b.x + b.w / 2, b.y + b.h - 8 - pulse);
+  ctx.lineTo(b.x + 8, b.y + b.h / 2);
+  ctx.fill();
+  ctx.lineWidth = 1;
+}
+
+function drawCrumble(ctx, c) {
+  ctx.fillStyle = "#33263a";
+  ctx.fillRect(c.x, c.y, c.w, c.h);
+  ctx.fillStyle = COLORS.gold;
+  ctx.fillRect(c.x, c.y, c.w, 5);
+  ctx.strokeStyle = "rgba(255,209,102,0.42)";
+  for (let x = c.x + 18; x < c.x + c.w - 8; x += 34) {
+    ctx.beginPath();
+    ctx.moveTo(x, c.y + 6);
+    ctx.lineTo(x + 10, c.y + c.h - 5);
+    ctx.stroke();
+  }
+}
+
+function drawLock(ctx, l) {
+  glow(ctx, l.x + l.w / 2, l.y + l.h / 2, COLORS.gold, 34);
+  ctx.fillStyle = "#17111b";
+  ctx.fillRect(l.x, l.y, l.w, l.h);
+  ctx.strokeStyle = COLORS.gold;
+  ctx.lineWidth = 5;
+  ctx.strokeRect(l.x + 4, l.y + 4, l.w - 8, l.h - 8);
+  ctx.beginPath();
+  ctx.arc(l.x + l.w / 2, l.y + 30, 18, Math.PI, 0);
+  ctx.stroke();
+  ctx.fillStyle = COLORS.gold;
+  ctx.fillRect(l.x + l.w / 2 - 5, l.y + 45, 10, 24);
+  ctx.lineWidth = 1;
+}
+
+function drawFeverGate(ctx, g, state) {
+  const open = state.feverActive > 0;
+  const color = open ? COLORS.gold : COLORS.rose;
+  ctx.save();
+  glow(ctx, g.x + g.w / 2, g.y + g.h / 2, color, open ? 58 : 34);
+  ctx.globalAlpha = open ? 0.28 : 0.88;
+  ctx.fillStyle = color;
+  ctx.fillRect(g.x, g.y, g.w, g.h);
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "#fff9e9";
+  ctx.font = "bold 13px Arial";
+  ctx.fillText("FEVER", g.x - 5, g.y + g.h / 2);
+  for (let y = g.y + 8; y < g.y + g.h; y += 20) {
+    ctx.fillStyle = open ? "rgba(255,249,233,0.45)" : COLORS.gold;
+    ctx.fillRect(g.x + 5, y, g.w - 10, 4);
+  }
+  ctx.restore();
+}
+
 function drawHazard(ctx, h) {
   const color = h.type === "water" ? COLORS.cyan : h.type === "laser" ? COLORS.rose : "#11131d";
   glow(ctx, h.x + h.w / 2, h.y, color, 48);
@@ -296,6 +389,7 @@ function drawPickups(ctx, state) {
     if (item.type === "feather") drawFeather(ctx, item.x, y);
     if (item.type === "fever") drawStar(ctx, item.x, y);
     if (item.type === "glove") drawGlove(ctx, item.x, y);
+    if (item.type === "key") drawKey(ctx, item.x, y);
   }
 }
 
@@ -378,6 +472,22 @@ function drawGlove(ctx, x, y) {
   ctx.fillStyle = COLORS.rose;
   ctx.fillRect(x + 8, y + 12, 17, 16);
   for (let i = 0; i < 4; i += 1) ctx.fillRect(x + 6 + i * 5, y + 5, 4, 12);
+}
+
+function drawKey(ctx, x, y) {
+  glow(ctx, x + 15, y + 15, COLORS.gold, 22);
+  ctx.strokeStyle = COLORS.gold;
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.arc(x + 10, y + 14, 7, 0, Math.PI * 2);
+  ctx.moveTo(x + 17, y + 14);
+  ctx.lineTo(x + 31, y + 14);
+  ctx.moveTo(x + 25, y + 14);
+  ctx.lineTo(x + 25, y + 22);
+  ctx.moveTo(x + 31, y + 14);
+  ctx.lineTo(x + 31, y + 20);
+  ctx.stroke();
+  ctx.lineWidth = 1;
 }
 
 function drawEnemies(ctx, state) {

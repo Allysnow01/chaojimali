@@ -1,5 +1,5 @@
-import { H, PHYSICS } from "./config.js?v=3.6";
-import { clamp, rects } from "./utils.js?v=3.6";
+import { H, PHYSICS } from "./config.js?v=3.7";
+import { clamp, rects } from "./utils.js?v=3.7";
 
 const PICKUP_SCORE = {
   note: 1,
@@ -8,7 +8,8 @@ const PICKUP_SCORE = {
   cassette: 8,
   feather: 6,
   fever: 7,
-  glove: 6
+  glove: 6,
+  key: 10
 };
 
 export function makeState(level) {
@@ -21,6 +22,7 @@ export function makeState(level) {
     comboTime: 0,
     fever: 20,
     feverActive: 0,
+    keys: 0,
     remix: 0,
     safetyBounce: 1,
     won: false,
@@ -69,6 +71,11 @@ export function makeState(level) {
       shoot: 30 + i * 9
     })),
     moving: level.moving.map((m) => ({ ...m, baseX: m.x, baseY: m.y, lastX: m.x, lastY: m.y, wave0: Math.sin(m.phase * 80 * 0.035 * m.speed) })),
+    boosters: level.boosters.map((b) => ({ ...b, cooldown: 0 })),
+    rails: level.rails.map((r) => ({ ...r })),
+    locks: level.locks.map((l) => ({ ...l, open: false })),
+    crumble: level.crumble.map((c) => ({ ...c, active: true, timer: c.timer ?? 90, reset: 0 })),
+    feverGates: level.feverGates.map((g) => ({ ...g })),
     checkpoints: level.checkpoints.map((c) => ({ ...c, active: false }))
   };
 }
@@ -91,6 +98,7 @@ export function updateGame(state, level, input, dt, hud, finish, audio) {
   state.time -= dt / 60;
   state.pulse += dt;
   state.portalCd = Math.max(0, state.portalCd - dt);
+  for (const b of state.boosters) b.cooldown = Math.max(0, b.cooldown - dt);
   state.checkpointGrace = Math.max(0, state.checkpointGrace - dt);
   state.shake = Math.max(0, state.shake - dt);
   state.flash = Math.max(0, state.flash - dt);
@@ -122,6 +130,7 @@ export function updateGame(state, level, input, dt, hud, finish, audio) {
 
   if (input.hit("ArrowUp", "w", " ")) p.jumpBuffer = PHYSICS.jumpBuffer;
   updateMovingPlatforms(state, dt);
+  updateCrumble(state, dt);
   updatePlayer(state, level, input, dt, feverBoost, finish, audio);
   updateEnemies(state, input, dt, feverBoost, finish, audio);
   collectPickups(state, audio);
@@ -201,7 +210,11 @@ function updatePlayer(state, level, input, dt, boost, finish, audio) {
 }
 
 function solids(level, state, includeMoving = true) {
-  return includeMoving ? level.platforms.concat(state.moving) : level.platforms;
+  const staticSolids = level.platforms
+    .concat(state.crumble.filter((c) => c.active))
+    .concat(state.locks.filter((l) => !l.open))
+    .concat(state.feverGates.filter(() => state.feverActive <= 0));
+  return includeMoving ? staticSolids.concat(state.moving) : staticSolids;
 }
 
 function collideX(state, level, p, includeMoving = true) {
@@ -311,8 +324,71 @@ function updateMovingPlatforms(state, dt) {
   }
 }
 
+function updateCrumble(state, dt) {
+  const p = state.player;
+  for (const c of state.crumble) {
+    if (!c.active) {
+      c.reset -= dt;
+      if (c.reset <= 0) {
+        c.active = true;
+        c.timer = c.timerMax ?? c.timer ?? 90;
+      }
+      continue;
+    }
+    c.timerMax ??= c.timer;
+    const standing = p.prevY + p.h <= c.y + 4 && p.y + p.h >= c.y && p.x + p.w > c.x + 6 && p.x < c.x + c.w - 6 && p.vy >= 0;
+    if (!standing) continue;
+    c.timer -= dt;
+    if (Math.floor(state.pulse) % 8 === 0) burst(state, p.x + p.w / 2, c.y + 6, "#ffd166", 2, 1.1);
+    if (c.timer <= 0) {
+      c.active = false;
+      c.reset = c.respawn ?? 260;
+      state.shake = 5;
+      burst(state, c.x + c.w / 2, c.y + 10, "#ff8d5d", 18, 2.6);
+    }
+  }
+}
+
 function handleSpecials(state, level, finish, audio) {
   const p = state.player;
+  for (const rail of state.rails) {
+    if (!rects(p, rail)) continue;
+    p.vx = rail.speed ?? 11;
+    if (rail.lift) p.vy = Math.min(p.vy, rail.lift);
+    p.dashEnergy = 100;
+    p.glide = Math.max(p.glide, 160);
+    if (Math.floor(state.pulse) % 6 === 0) burst(state, p.x + 8, p.y + p.h, "#55e6ff", 2, 1.8);
+  }
+  for (const booster of state.boosters) {
+    if (booster.cooldown > 0 || !rects(p, booster)) continue;
+    const power = booster.power ?? 15;
+    p.vx = (booster.vx ?? 0) * power;
+    p.vy = (booster.vy ?? -1) * power;
+    p.dashEnergy = 100;
+    p.glide = Math.max(p.glide, 240);
+    p.invincible = Math.max(p.invincible, 10);
+    booster.cooldown = 46;
+    state.shake = 6;
+    burst(state, booster.x + booster.w / 2, booster.y + booster.h / 2, "#b79cff", 28, 3.6);
+    audio?.sfx("dash");
+  }
+  for (const lock of state.locks) {
+    if (lock.open) continue;
+    const near = p.x + p.w > lock.x - 10 && p.x < lock.x + lock.w + 10 && p.y + p.h > lock.y && p.y < lock.y + lock.h;
+    if (!near || state.keys <= 0) continue;
+    lock.open = true;
+    state.keys -= 1;
+    state.score += 20 * state.combo;
+    state.shake = 9;
+    popup(state, "UNLOCK", lock.x - 12, lock.y - 12, "#ffd166");
+    burst(state, lock.x + lock.w / 2, lock.y + lock.h / 2, "#ffd166", 36, 3.4);
+    audio?.sfx("checkpoint");
+  }
+  for (const gate of state.feverGates) {
+    if (!rects(p, gate) || state.feverActive > 0) continue;
+    if (state.fever >= 100) popup(state, "PRESS L", gate.x - 12, gate.y - 18, "#ffd166");
+    else if (Math.floor(state.pulse) % 30 === 0) popup(state, "NEED FEVER", gate.x - 20, gate.y - 18, "#ff5d8f");
+  }
   for (const s of level.springs) {
     if (rects(p, s) && p.vy >= 0) {
       p.y = s.y - p.h;
@@ -451,6 +527,11 @@ function collectPickups(state, audio) {
     } else if (item.type === "glove") {
       p.power = 520;
       color = "#ff5d8f";
+    } else if (item.type === "key") {
+      state.keys += 1;
+      state.fever = Math.min(100, state.fever + 10);
+      color = "#ffd166";
+      popup(state, `KEY x${state.keys}`, item.x - 8, item.y - 32, color);
     }
     const add = PICKUP_SCORE[item.type] || 1;
     const score = add * state.combo;

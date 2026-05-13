@@ -7,8 +7,8 @@ export const stage = {
   start: { x: 74, y: 404 },
   goal: { x: 7540, y: 248, w: 118, h: 244 },
   acts: [
-    { name: "双截棍工厂", start: 0, end: 3600, tint: "#281b2f", mission: "观察节奏门开合，别硬冲。", music: "factory" },
-    { name: "七里香终演", start: 3600, end: 7800, tint: "#321d27", mission: "攒满 Fever 后穿过最后灯阵。", music: "finale" }
+    { name: "双截棍工厂", start: 0, end: 3600, tint: "#281b2f", mission: "火箭轨道会强制推进，提前准备跳点。", music: "factory" },
+    { name: "七里香终演", start: 3600, end: 7800, tint: "#321d27", mission: "释放 Fever 穿过终演门阵。", music: "finale" }
   ],
   ground: [
     [0, 900, "factory"], [1160, 700, "factory"], [2160, 740, "factory"],
@@ -26,6 +26,27 @@ export const stage = {
     { x: 3060, y: 420, w: 150, h: 22, skin: "moving", axis: "x", min: 2940, max: 3480, speed: 1.6, phase: 0.55 },
     { x: 5520, y: 424, w: 150, h: 22, skin: "moving", axis: "y", min: 294, max: 432, speed: 1.4, phase: 0.75 }
   ],
+  rails: [
+    { x: 920, y: 414, w: 900, h: 34, speed: 12.5, lift: -4.5 },
+    { x: 3720, y: 406, w: 900, h: 34, speed: 13.2, lift: -5.2 },
+    { x: 6020, y: 410, w: 1120, h: 34, speed: 13.8, lift: -4.6 }
+  ],
+  boosters: [
+    { x: 3340, y: 286, w: 44, h: 44, vx: 0.95, vy: -0.65, power: 17 },
+    { x: 5660, y: 286, w: 44, h: 44, vx: 0.92, vy: -0.72, power: 17 },
+    { x: 7280, y: 300, w: 44, h: 44, vx: 0.65, vy: -0.92, power: 15 }
+  ],
+  locks: [
+    { x: 5780, y: 372, w: 52, h: 120 }
+  ],
+  feverGates: [
+    { x: 7160, y: 336, w: 42, h: 156 },
+    { x: 7400, y: 326, w: 42, h: 166 }
+  ],
+  crumble: [
+    { x: 1900, y: 344, w: 150, h: 24, timer: 52, respawn: 300 },
+    { x: 7200, y: 354, w: 150, h: 24, timer: 50, respawn: 320 }
+  ],
   hazards: [
     { x: 900, y: 520, w: 250, h: 18, type: "laser" },
     { x: 1880, y: 520, w: 260, h: 18, type: "laser" },
@@ -38,7 +59,7 @@ export const stage = {
   ],
   pickups: [
     [760, 280, "glove"], [1800, 266, "fever"], [2880, 276, "vinyl"],
-    [4100, 262, "cassette"], [5320, 272, "fever"], [6520, 270, "milk"], [7040, 346, "fever"]
+    [4100, 262, "cassette"], [5320, 272, "key"], [5480, 286, "fever"], [6520, 270, "milk"], [7040, 346, "fever"]
   ],
   arcs: [
     [320, 350, 5, "note"], [1270, 352, 6, "note"], [2300, 348, 5, "note"],

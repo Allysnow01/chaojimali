@@ -7,8 +7,8 @@ export const stage = {
   start: { x: 74, y: 404 },
   goal: { x: 6540, y: 248, w: 118, h: 244 },
   acts: [
-    { name: "瓷巷低桥", start: 0, end: 3000, tint: "#102d3a", mission: "用弹簧越过水渠，拿到高位音符。", music: "porcelain" },
-    { name: "回声拱门", start: 3000, end: 6800, tint: "#173b48", mission: "传送门改变路线，落点前先看平台。", music: "porcelain" }
+    { name: "瓷巷低桥", start: 0, end: 3000, tint: "#102d3a", mission: "先拿金钥匙，再开瓷门进入传送路线。", music: "porcelain" },
+    { name: "回声拱门", start: 3000, end: 6800, tint: "#173b48", mission: "第二把钥匙打开终段水巷捷径。", music: "porcelain" }
   ],
   ground: [
     [0, 880, "porcelain"], [1150, 690, "porcelain"], [2140, 760, "porcelain"],
@@ -38,13 +38,20 @@ export const stage = {
     { x: 2580, y: 426, w: 40, h: 66, to: { x: 3430, y: 312 } },
     { x: 4820, y: 426, w: 40, h: 66, to: { x: 5580, y: 318 } }
   ],
+  locks: [
+    { x: 3230, y: 372, w: 52, h: 120 },
+    { x: 5480, y: 372, w: 52, h: 120 }
+  ],
+  crumble: [
+    { x: 3040, y: 356, w: 150, h: 24, timer: 66, respawn: 300 }
+  ],
   pickups: [
-    [720, 280, "vinyl"], [1780, 264, "feather"], [2620, 344, "fever"],
-    [4000, 264, "cassette"], [5200, 276, "milk"], [6260, 274, "fever"]
+    [720, 280, "vinyl"], [1780, 264, "feather"], [2440, 350, "key"], [2620, 344, "fever"],
+    [4000, 264, "cassette"], [5200, 276, "milk"], [5320, 274, "key"], [6260, 274, "fever"]
   ],
   arcs: [
     [300, 352, 5, "note"], [1240, 344, 6, "note"], [2260, 352, 5, "note"],
-    [3480, 346, 6, "note"], [4660, 340, 6, "note"], [5750, 342, 7, "note"]
+    [3040, 314, 4, "note"], [3480, 346, 6, "note"], [4660, 340, 6, "note"], [5750, 342, 7, "note"]
   ],
   enemies: [
     [560, 454, 360, 850, "dancer"], [1340, 454, 1180, 1780, "speaker"],

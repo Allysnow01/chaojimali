@@ -1,4 +1,4 @@
-import { STAGE_PACK } from "./stages/index.js?v=3.6";
+import { STAGE_PACK } from "./stages/index.js?v=3.7";
 
 const groundY = 492;
 
@@ -23,6 +23,11 @@ export function createTourLevel(stageIndex = 0) {
     decorations: [],
     springs: [],
     portals: [],
+    boosters: [],
+    rails: [],
+    locks: [],
+    crumble: [],
+    feverGates: [],
     checkpoints: [],
     goal: { ...spec.goal },
     acts: normalizeActs(spec)
@@ -36,6 +41,11 @@ export function createTourLevel(stageIndex = 0) {
   addObjects(level, "beatGates", spec.beatGates || []);
   addObjects(level, "springs", spec.springs || []);
   addObjects(level, "portals", spec.portals || []);
+  addObjects(level, "boosters", spec.boosters || []);
+  addObjects(level, "rails", spec.rails || []);
+  addObjects(level, "locks", spec.locks || []);
+  addObjects(level, "crumble", spec.crumble || []);
+  addObjects(level, "feverGates", spec.feverGates || []);
   addPickups(level, spec.pickups || []);
   addArcs(level, spec.arcs || []);
   addEnemies(level, spec.enemies || []);
